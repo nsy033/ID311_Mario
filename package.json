@@ -1,0 +1,13 @@
+{
+  "name": "homework-oop",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite"
+  },
+  "devDependencies": {
+    "vite": "^2.7.2"
+  },
+  "dependencies": {
+    "rxjs": "^7.5.5"
+  }
+}
