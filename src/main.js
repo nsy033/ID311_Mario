@@ -5,15 +5,17 @@ import {
   TILE_W_COUNT,
   TILE_H_COUNT,
 } from './Constants.js';
-import { Map } from './maps.js';
+import { Map } from './Maps.js';
 
 import { Block, Grass } from '../src/Block';
 import { Star, StarBlock } from '../src/Star';
 import { Fire, Thorn } from '../src/Obstacle.js';
+import { Mario } from '../src/Mario.js';
 
 const images = {};
 let tiles = [];
 let directions = [];
+let mario;
 
 function preload() {
   images['background'] = loadImage('../data/background.png');
@@ -44,6 +46,13 @@ function setup() {
       } else continue;
     }
   }
+
+  mario = Mario.getInstance();
+  mario.setPosition(4, 4, 0, 0);
+
+  setInterval(() => {
+    checkKeyboardInput();
+  }, 300);
 }
 
 function drawMap() {
@@ -62,6 +71,8 @@ function draw() {
   image(images['background'], CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
   update();
   drawMap();
+
+  mario.draw();
 }
 
 function update() {
@@ -73,6 +84,18 @@ function update() {
 
 function mousePressed() {
   console.log(mouseX, mouseY);
+}
+
+function checkKeyboardInput() {
+  if (keyIsDown(RIGHT_ARROW)) {
+    mario.setFace(0);
+    mario.makeMovement();
+  } else if (keyIsDown(LEFT_ARROW)) {
+    mario.setFace(1);
+    mario.makeMovement();
+  } else {
+    mario.makeStable();
+  }
 }
 
 // Do not touch these
