@@ -5,6 +5,11 @@ import {
   TILE_W_COUNT,
   TILE_H_COUNT,
   TIME_INTERVAL,
+  HALF_TILE_SIZE,
+  MARIO_MARGIN,
+  MARIO_STEP,
+  TILE_SIZE,
+  THORN_MARGIN,
 } from './Constants.js';
 import { MapFactory } from './Map.js';
 
@@ -14,6 +19,7 @@ import { Fire, Thorn } from '../src/Obstacle.js';
 import { Mario } from '../src/Mario.js';
 
 const images = {};
+let map = [];
 let tiles = [];
 let directions = [];
 let mario;
@@ -24,39 +30,42 @@ function preload() {
 
 function setup() {
   createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
-  tiles = MapFactory.getInstance().getTiles(1);
+  map = MapFactory.getInstance().getTiles(1);
   directions = MapFactory.getInstance().getDirections(1);
   imageMode(CENTER);
   angleMode(DEGREES);
 
   mario = Mario.getInstance();
-  mario.setPosition(4, 4, 0, 0);
+  mario.setPosition(4, 4, 0, 1);
 
   for (let j = 0; j < TILE_H_COUNT; j++) {
+    tiles.push(new Array(TILE_W_COUNT));
     for (let i = 0; i < TILE_W_COUNT; i++) {
       const dir = directions[j][i];
-      if (tiles[j][i] == 0) continue;
+      if (map[j][i] == 0) continue;
 
-      if (tiles[j][i] == 1) {
+      if (map[j][i] == 1) {
         tiles[j][i] = new Block(i, j, dir);
-      } else if (tiles[j][i] == 2) {
+      } else if (map[j][i] == 2) {
         tiles[j][i] = new Grass(i, j, dir);
-      } else if (tiles[j][i] == 3) {
+      } else if (map[j][i] == 3) {
         tiles[j][i] = new Star(i, j, dir);
-      } else if (tiles[j][i] == 4) {
+      } else if (map[j][i] == 4) {
         tiles[j][i] = new StarBlock(i, j, dir);
-      } else if (tiles[j][i] == 5) {
+      } else if (map[j][i] == 5) {
         tiles[j][i] = new Fire(i, j, dir);
-      } else if (tiles[j][i] == 6) {
+      } else if (map[j][i] == 6) {
         tiles[j][i] = new Thorn(i, j, dir);
       }
 
       mario.subscribe(tiles[j][i]);
+      tiles[j][i].subscribe(mario);
     }
   }
 
   setInterval(() => {
     checkKeyboardInput();
+    gravityOperates();
   }, TIME_INTERVAL);
 }
 
@@ -74,21 +83,13 @@ function draw() {
   clear();
 
   image(images['background'], CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
-  update();
   drawMap();
 
   mario.draw();
 }
 
-function update() {
-  if (keyIsPressed) {
-    // mario moves
-    return;
-  }
-}
-
 function mousePressed() {
-  console.log(mouseX, mouseY);
+  //   console.log(mouseX, mouseY);
 }
 
 function checkKeyboardInput() {
@@ -96,9 +97,15 @@ function checkKeyboardInput() {
     mario.move(1);
   } else if (keyIsDown(LEFT_ARROW)) {
     mario.move(-1);
-  } else {
-    mario.beStable();
   }
+}
+
+function keyReleased() {
+  mario.beStable();
+}
+
+function gravityOperates() {
+  mario.forceGravity();
 }
 
 // Do not touch these
@@ -106,4 +113,4 @@ window.preload = preload;
 window.setup = setup;
 window.draw = draw;
 window.mousePressed = mousePressed;
-// window.keyPressed = keyPressed;
+window.keyReleased = keyReleased;
