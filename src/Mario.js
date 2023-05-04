@@ -1,11 +1,14 @@
-import { HALF_TILE_SIZE, TILE_SIZE } from '../src/Constants';
+import { HALF_TILE_SIZE, TILE_SIZE, MARIO_STEP } from '../src/Constants';
 import mario_float from '../data/mario-float.png';
 import mario_stable from '../data/mario-stable.png';
 import mario_walk from '../data/mario-walk.png';
 import mario_hurt from '../data/mario-hurt.png';
+import { Subject } from './Subject';
 
-class Mario {
+class Mario extends Subject {
   constructor() {
+    super();
+
     this.float_img = loadImage(mario_float);
     this.stable_img = loadImage(mario_stable);
     this.walk_img = loadImage(mario_walk);
@@ -19,15 +22,13 @@ class Mario {
   }
 
   setPosition(i, j, dir, face) {
-    this.i = i;
-    this.j = j;
+    this.x = i * TILE_SIZE + HALF_TILE_SIZE;
+    this.y = j * TILE_SIZE + HALF_TILE_SIZE;
     this.dir = dir;
     this.face = face;
   }
 
   draw() {
-    const x = this.i * TILE_SIZE + HALF_TILE_SIZE,
-      y = this.j * TILE_SIZE + HALF_TILE_SIZE;
     const img =
       this.img2display == 0
         ? this.float_img
@@ -35,9 +36,9 @@ class Mario {
         ? this.stable_img
         : this.walk_img;
 
-    translate(x, y);
+    translate(this.x, this.y);
     if (this.dir == 0) {
-      if (this.face == 1) scale(-1, 1);
+      if (this.face == -1) scale(-1, 1);
 
       image(img, 0, 0, TILE_SIZE, TILE_SIZE);
     } else {
@@ -57,16 +58,14 @@ class Mario {
     resetMatrix();
   }
 
-  setFace(face) {
+  move(face) {
     this.face = face;
-  }
-
-  makeMovement() {
+    this.x += MARIO_STEP * this.face;
     this.img2display++;
     if (this.img2display > 2) this.img2display = 1;
   }
 
-  makeStable() {
+  beStable() {
     this.img2display = 1;
   }
 }

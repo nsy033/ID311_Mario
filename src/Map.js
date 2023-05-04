@@ -1,4 +1,4 @@
-class Map {
+class MapFactory {
   constructor() {
     this.map = {};
     this.initiateMap1();
@@ -7,7 +7,7 @@ class Map {
   }
 
   static getInstance() {
-    if (!this._instance) this._instance = new Map();
+    if (!this._instance) this._instance = new MapFactory();
     return this._instance;
   }
 
@@ -77,4 +77,4 @@ class Map {
   }
 }
 
-export { Map };
+export { MapFactory };

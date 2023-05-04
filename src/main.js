@@ -4,8 +4,9 @@ import {
   CANVAS_HEIGHT,
   TILE_W_COUNT,
   TILE_H_COUNT,
+  TIME_INTERVAL,
 } from './Constants.js';
-import { Map } from './Maps.js';
+import { MapFactory } from './Map.js';
 
 import { Block, Grass } from '../src/Block';
 import { Star, StarBlock } from '../src/Star';
@@ -23,14 +24,19 @@ function preload() {
 
 function setup() {
   createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
-  tiles = Map.getInstance().getTiles(1);
-  directions = Map.getInstance().getDirections(1);
+  tiles = MapFactory.getInstance().getTiles(1);
+  directions = MapFactory.getInstance().getDirections(1);
   imageMode(CENTER);
   angleMode(DEGREES);
+
+  mario = Mario.getInstance();
+  mario.setPosition(4, 4, 0, 0);
 
   for (let j = 0; j < TILE_H_COUNT; j++) {
     for (let i = 0; i < TILE_W_COUNT; i++) {
       const dir = directions[j][i];
+      if (tiles[j][i] == 0) continue;
+
       if (tiles[j][i] == 1) {
         tiles[j][i] = new Block(i, j, dir);
       } else if (tiles[j][i] == 2) {
@@ -43,16 +49,15 @@ function setup() {
         tiles[j][i] = new Fire(i, j, dir);
       } else if (tiles[j][i] == 6) {
         tiles[j][i] = new Thorn(i, j, dir);
-      } else continue;
+      }
+
+      mario.subscribe(tiles[j][i]);
     }
   }
 
-  mario = Mario.getInstance();
-  mario.setPosition(4, 4, 0, 0);
-
   setInterval(() => {
     checkKeyboardInput();
-  }, 300);
+  }, TIME_INTERVAL);
 }
 
 function drawMap() {
@@ -88,13 +93,11 @@ function mousePressed() {
 
 function checkKeyboardInput() {
   if (keyIsDown(RIGHT_ARROW)) {
-    mario.setFace(0);
-    mario.makeMovement();
+    mario.move(1);
   } else if (keyIsDown(LEFT_ARROW)) {
-    mario.setFace(1);
-    mario.makeMovement();
+    mario.move(-1);
   } else {
-    mario.makeStable();
+    mario.beStable();
   }
 }
 
