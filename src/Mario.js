@@ -98,6 +98,7 @@ class Mario extends Subject {
 
   forceGravity() {
     this.gravityCache.clear();
+    this.img2display = 0;
 
     if (this.dir == 2) this.y += GRAVITY_STEP;
     else if (this.dir == 0) this.y -= GRAVITY_STEP;
@@ -120,6 +121,8 @@ class Mario extends Subject {
       this.coordinates = calcCoordinates(this.x, this.y, true);
     } else if (source.includes('holds')) {
       const [i, j] = xy2ij(this.x, this.y);
+      if (this.img2display == 0) this.img2display = 1;
+      else this.img2display++;
 
       if (!this.gravityCache.has((i, j))) {
         this.gravityCache.add((i, j));
