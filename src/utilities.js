@@ -1,4 +1,9 @@
-import { TILE_SIZE, HALF_TILE_SIZE, MARIO_MARGIN } from './Constants';
+import {
+  TILE_SIZE,
+  HALF_TILE_SIZE,
+  MARIO_MARGIN_LR,
+  MARIO_MARGIN_TOP,
+} from './Constants';
 
 export const ij2xy = (i, j) => {
   const x = i * TILE_SIZE + HALF_TILE_SIZE;
@@ -36,19 +41,19 @@ export const calcCoordinates = (x, y, isMario) => {
 
   if (isMario) {
     coordinates.upperLeft = {
-      x: x - HALF_TILE_SIZE + MARIO_MARGIN,
-      y: y - HALF_TILE_SIZE,
+      x: x - HALF_TILE_SIZE + MARIO_MARGIN_LR,
+      y: y - HALF_TILE_SIZE + MARIO_MARGIN_TOP,
     };
     coordinates.upperRight = {
-      x: x + HALF_TILE_SIZE - MARIO_MARGIN,
-      y: y - HALF_TILE_SIZE,
+      x: x + HALF_TILE_SIZE - MARIO_MARGIN_LR,
+      y: y - HALF_TILE_SIZE + MARIO_MARGIN_TOP,
     };
     coordinates.lowerLeft = {
-      x: x - HALF_TILE_SIZE + MARIO_MARGIN,
+      x: x - HALF_TILE_SIZE + MARIO_MARGIN_LR,
       y: y + HALF_TILE_SIZE,
     };
     coordinates.lowerRight = {
-      x: x + HALF_TILE_SIZE - MARIO_MARGIN,
+      x: x + HALF_TILE_SIZE - MARIO_MARGIN_LR,
       y: y + HALF_TILE_SIZE,
     };
   } else {

@@ -2,7 +2,7 @@
 import block from '../data/block.png';
 import grass from '../data/grass.png';
 import { Subject } from '../src/Subject';
-import { HALF_TILE_SIZE, MARIO_MARGIN } from './Constants';
+import { HALF_TILE_SIZE, MARIO_MARGIN_LR } from './Constants';
 import { calcCoordinates, collisionTest, ij2xy, xy2ij } from './utilities';
 
 class Block extends Subject {

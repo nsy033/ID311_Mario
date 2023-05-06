@@ -1,10 +1,4 @@
-import {
-  HALF_TILE_SIZE,
-  TILE_SIZE,
-  MARIO_STEP,
-  MARIO_MARGIN,
-  GRAVITY,
-} from '../src/Constants';
+import { TILE_SIZE, MARIO_STEP, GRAVITY_STEP } from '../src/Constants';
 import mario_float from '../data/mario-float.png';
 import mario_stable from '../data/mario-stable.png';
 import mario_walk from '../data/mario-walk.png';
@@ -22,6 +16,14 @@ class Mario extends Subject {
     this.hurt_img = loadImage(mario_hurt);
     this.img2display = 1;
     this.gravityCache = new Set();
+
+    /*
+    0: up
+    1: left
+    2: down
+    3: right
+    */
+    this.dir = 2;
   }
 
   static getInstance() {
@@ -43,6 +45,14 @@ class Mario extends Subject {
     return { x: this.x, y: this.y, dir: this.dir, face: this.face };
   }
 
+  setDirection(dir) {
+    this.dir = dir;
+  }
+
+  getDirection() {
+    return this.dir;
+  }
+
   draw() {
     const img =
       this.img2display == 0
@@ -54,23 +64,23 @@ class Mario extends Subject {
         : this.hurt_img;
 
     translate(this.x, this.y);
-    if (this.dir == 0) {
+
+    if (this.dir == 2) {
       if (this.face == -1) scale(-1, 1);
-
-      image(img, 0, 0, TILE_SIZE, TILE_SIZE);
     } else {
-      translate(x, y);
-
       let angle = -90;
-      if (this.dir == 2) {
+      if (this.dir == 0) {
+        if (this.face == 1) scale(-1, 1);
         angle = 180;
-      } else if (this.dir == 3) {
+      } else if (this.dir == 1) {
         angle = 90;
+      } else {
+        angle = 270;
       }
 
       rotate(angle);
-      image(img, 0, 0, TILE_SIZE, TILE_SIZE);
     }
+    image(img, 0, 0, TILE_SIZE, TILE_SIZE);
 
     resetMatrix();
   }
@@ -87,12 +97,17 @@ class Mario extends Subject {
   }
 
   forceGravity() {
-    this.y += GRAVITY;
+    this.gravityCache.clear();
+
+    if (this.dir == 2) this.y += GRAVITY_STEP;
+    else if (this.dir == 0) this.y -= GRAVITY_STEP;
 
     this.coordinates = calcCoordinates(this.x, this.y, true);
     this.notifySubscribers('mario-follows-gravity', this.coordinates);
+  }
 
-    this.gravityCache.clear();
+  standOnSth() {
+    return this.gravityCache.size > 0;
   }
 
   beStable() {
@@ -109,7 +124,8 @@ class Mario extends Subject {
       if (!this.gravityCache.has((i, j))) {
         this.gravityCache.add((i, j));
 
-        this.y -= GRAVITY;
+        if (this.dir == 2) this.y -= GRAVITY_STEP;
+        else if (this.dir == 0) this.y += GRAVITY_STEP;
         this.coordinates = calcCoordinates(this.x, this.y, true);
       }
     }

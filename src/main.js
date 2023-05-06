@@ -5,11 +5,6 @@ import {
   TILE_W_COUNT,
   TILE_H_COUNT,
   TIME_INTERVAL,
-  HALF_TILE_SIZE,
-  MARIO_MARGIN,
-  MARIO_STEP,
-  TILE_SIZE,
-  THORN_MARGIN,
 } from './Constants.js';
 import { MapFactory } from './Map.js';
 
@@ -36,7 +31,7 @@ function setup() {
   angleMode(DEGREES);
 
   mario = Mario.getInstance();
-  mario.setPosition(4, 4, 0, 1);
+  mario.setPosition(4, 4, 2, 1);
 
   for (let j = 0; j < TILE_H_COUNT; j++) {
     tiles.push(new Array(TILE_W_COUNT));
@@ -100,8 +95,12 @@ function checkKeyboardInput() {
   }
 }
 
-function keyReleased() {
+function keyReleased(e) {
   mario.beStable();
+  if (e.keyCode == 32 && mario.standOnSth()) {
+    const curGravity = mario.getDirection(0);
+    mario.setDirection((curGravity + 2) % 4);
+  }
 }
 
 function gravityOperates() {
