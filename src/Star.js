@@ -22,6 +22,10 @@ class Star extends Subject {
       if (collisionTest(this.coordinates, args[0])) {
         this.notifySubscribers('star-holds-succeed', this.coordinates);
       }
+    } else if (source == 'fire-wants-to-move') {
+      if (collisionTest(this.coordinates, args[0])) {
+        this.notifySubscribers('star-change-fire-dir', args[1], args[2]);
+      }
     }
   }
 }
@@ -43,6 +47,10 @@ class StarBlock extends Subject {
     } else if (source == 'mario-follows-gravity') {
       if (collisionTest(this.coordinates, args[0])) {
         this.notifySubscribers('starblock-holds-succeed', this.coordinates);
+      }
+    } else if (source == 'fire-wants-to-move') {
+      if (collisionTest(this.coordinates, args[0])) {
+        this.notifySubscribers('starblock-change-fire-dir', args[1], args[2]);
       }
     }
   }

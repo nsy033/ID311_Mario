@@ -40,6 +40,8 @@ function setup() {
   mario = Mario.getInstance();
   mario.setPosition(4, 4, 2, 1);
 
+  const fires = [];
+
   for (let j = 0; j < TILE_H_COUNT; j++) {
     tiles.push(new Array(TILE_W_COUNT));
     for (let i = 0; i < TILE_W_COUNT; i++) {
@@ -57,6 +59,7 @@ function setup() {
           tiles[j][i] = new StarBlock(i, j, dir);
         } else if (map[j][i] == CELL_TYPES.fire) {
           tiles[j][i] = new Fire(i, j, dir);
+          fires.push(tiles[j][i]);
         } else if (map[j][i] == CELL_TYPES.thorn) {
           tiles[j][i] = new Thorn(i, j, dir);
         }
@@ -65,6 +68,18 @@ function setup() {
 
       mario.subscribe(tiles[j][i]);
       tiles[j][i].subscribe(mario);
+    }
+  }
+
+  for (let j = 0; j < TILE_H_COUNT; j++) {
+    for (let i = 0; i < TILE_W_COUNT; i++) {
+      if (typeof tiles[j][i] != 'object') continue;
+
+      for (const fire of fires) {
+        if (fire == tiles[j][i]) continue;
+        tiles[j][i].subscribe(fire);
+        fire.subscribe(tiles[j][i]);
+      }
     }
   }
 

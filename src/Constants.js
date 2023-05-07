@@ -5,9 +5,10 @@ export const HALF_TILE_SIZE = 45 / 2;
 export const TILE_W_COUNT = 24;
 export const TILE_H_COUNT = 16;
 export const GRAVITY_STEP = 8;
-export const MARIO_STEP = 5;
+export const MARIO_STEP = 6;
 export const MARIO_MARGIN_LR = 10;
 export const MARIO_MARGIN_TOP = 5;
+export const FIRE_STEP = 2;
 export const THORN_MARGIN = 10;
 export const TIME_INTERVAL = 50;
 

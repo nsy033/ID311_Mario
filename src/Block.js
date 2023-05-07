@@ -22,6 +22,10 @@ class Block extends Subject {
       if (collisionTest(this.coordinates, args[0])) {
         this.notifySubscribers('block-holds', this.coordinates);
       }
+    } else if (source == 'fire-wants-to-move') {
+      if (collisionTest(this.coordinates, args[0])) {
+        this.notifySubscribers('block-change-fire-dir', args[1], args[2]);
+      }
     }
   }
 }
@@ -43,6 +47,10 @@ class Grass extends Subject {
     } else if (source == 'mario-follows-gravity') {
       if (collisionTest(this.coordinates, args[0])) {
         this.notifySubscribers('grass-holds', this.coordinates);
+      }
+    } else if (source == 'fire-wants-to-move') {
+      if (collisionTest(this.coordinates, args[0])) {
+        this.notifySubscribers('grass-change-fire-dir', args[1], args[2]);
       }
     }
   }
