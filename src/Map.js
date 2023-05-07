@@ -12,16 +12,6 @@ class MapFactory {
   }
 
   initiateMap1() {
-    /*
-    0: empty space
-    1: block
-    2: grass
-    3: star
-    4: starblock
-    5: fire
-    6: thorn
-    */
-
     this.map[1] = [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // ROW 0
       [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // ROW 1
@@ -42,13 +32,6 @@ class MapFactory {
     ];
   }
   initiateDir1() {
-    /*
-    0: up
-    1: left
-    2: down
-    3: right
-    */
-
     this.direction[1] = [
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // ROW 0
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // ROW 1

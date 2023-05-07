@@ -2,8 +2,7 @@
 import block from '../data/block.png';
 import grass from '../data/grass.png';
 import { Subject } from '../src/Subject';
-import { HALF_TILE_SIZE, MARIO_MARGIN_LR } from './Constants';
-import { calcCoordinates, collisionTest, ij2xy, xy2ij } from './utilities';
+import { calcCoordinates, collisionTest, ij2xy } from './utilities';
 
 class Block extends Subject {
   constructor(i, j, dir) {
@@ -18,12 +17,10 @@ class Block extends Subject {
     if (source == 'mario-wants-to-move') {
       if (collisionTest(this.coordinates, args[0])) {
         this.notifySubscribers('block-collides', this.coordinates);
-        return;
       }
     } else if (source == 'mario-follows-gravity') {
       if (collisionTest(this.coordinates, args[0])) {
         this.notifySubscribers('block-holds', this.coordinates);
-        return;
       }
     }
   }
@@ -42,12 +39,10 @@ class Grass extends Subject {
     if (source == 'mario-wants-to-move') {
       if (collisionTest(this.coordinates, args[0])) {
         this.notifySubscribers('grass-collides', this.coordinates);
-        return;
       }
     } else if (source == 'mario-follows-gravity') {
       if (collisionTest(this.coordinates, args[0])) {
         this.notifySubscribers('grass-holds', this.coordinates);
-        return;
       }
     }
   }

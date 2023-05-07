@@ -2,8 +2,7 @@
 import star from '../data/star.png';
 import starblock from '../data/starblock.png';
 import { Subject } from '../src/Subject';
-import { HALF_TILE_SIZE } from './Constants';
-import { calcCoordinates, collisionTest, ij2xy, xy2ij } from './utilities';
+import { calcCoordinates, collisionTest, ij2xy } from './utilities';
 
 class Star extends Subject {
   constructor(i, j, dir) {
@@ -17,8 +16,11 @@ class Star extends Subject {
   update(source, ...args) {
     if (source == 'mario-wants-to-move') {
       if (collisionTest(this.coordinates, args[0])) {
-        this.notifySubscribers('star-collides', this.coordinates);
-        return;
+        this.notifySubscribers('star-collides-succeed', this.coordinates);
+      }
+    } else if (source == 'mario-follows-gravity') {
+      if (collisionTest(this.coordinates, args[0])) {
+        this.notifySubscribers('star-holds-succeed', this.coordinates);
       }
     }
   }
@@ -36,8 +38,11 @@ class StarBlock extends Subject {
   update(source, ...args) {
     if (source == 'mario-wants-to-move') {
       if (collisionTest(this.coordinates, args[0])) {
-        this.notifySubscribers('starblock-collides', this.coordinates);
-        return;
+        this.notifySubscribers('starblock-collides-succeed', this.coordinates);
+      }
+    } else if (source == 'mario-follows-gravity') {
+      if (collisionTest(this.coordinates, args[0])) {
+        this.notifySubscribers('starblock-holds-succeed', this.coordinates);
       }
     }
   }

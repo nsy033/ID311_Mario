@@ -1,10 +1,17 @@
-import { TILE_SIZE, MARIO_STEP, GRAVITY_STEP } from '../src/Constants';
+import {
+  TILE_SIZE,
+  MARIO_STEP,
+  GRAVITY_STEP,
+  DIRECTION,
+  STATUS,
+} from '../src/Constants';
 import mario_float from '../data/mario-float.png';
 import mario_stable from '../data/mario-stable.png';
 import mario_walk from '../data/mario-walk.png';
 import mario_hurt from '../data/mario-hurt.png';
 import { Subject } from './Subject';
 import { calcCoordinates, ij2xy, xy2ij } from './utilities';
+import { GameManager } from './GameManager';
 
 class Mario extends Subject {
   constructor() {
@@ -17,13 +24,7 @@ class Mario extends Subject {
     this.img2display = 1;
     this.gravityCache = new Set();
 
-    /*
-    0: up
-    1: left
-    2: down
-    3: right
-    */
-    this.dir = 2;
+    this.dir = DIRECTION.down;
   }
 
   static getInstance() {
@@ -92,11 +93,13 @@ class Mario extends Subject {
     this.coordinates = calcCoordinates(this.x, this.y, true);
     this.notifySubscribers('mario-wants-to-move', this.coordinates);
 
+    if (GameManager.getInstance().getStatus() != STATUS.alive) return;
+
     this.img2display++;
     if (this.img2display > 2) this.img2display = 1;
   }
 
-  forceGravity() {
+  recieveGravity() {
     this.gravityCache.clear();
     this.img2display = 0;
 
@@ -116,20 +119,27 @@ class Mario extends Subject {
   }
 
   update(source, ...args) {
-    if (source.includes('collides')) {
-      this.x -= MARIO_STEP * this.face;
-      this.coordinates = calcCoordinates(this.x, this.y, true);
-    } else if (source.includes('holds')) {
-      const [i, j] = xy2ij(this.x, this.y);
-      if (this.img2display == 0) this.img2display = 1;
-      else this.img2display++;
-
-      if (!this.gravityCache.has((i, j))) {
-        this.gravityCache.add((i, j));
-
-        if (this.dir == 2) this.y -= GRAVITY_STEP;
-        else if (this.dir == 0) this.y += GRAVITY_STEP;
+    if (source.includes('gameover')) {
+      this.img2display = 3;
+    } else if (source.includes('succeed')) {
+      this.img2display = 0;
+    } else {
+      if (source.includes('collides')) {
+        this.x -= MARIO_STEP * this.face;
         this.coordinates = calcCoordinates(this.x, this.y, true);
+      } else if (source.includes('holds')) {
+        const [i, j] = xy2ij(this.x, this.y);
+
+        if (this.img2display == 0) this.img2display = 1;
+        else this.img2display++;
+
+        if (!this.gravityCache.has((i, j))) {
+          this.gravityCache.add((i, j));
+
+          if (this.dir == 2) this.y -= GRAVITY_STEP;
+          else if (this.dir == 0) this.y += GRAVITY_STEP;
+          this.coordinates = calcCoordinates(this.x, this.y, true);
+        }
       }
     }
   }
