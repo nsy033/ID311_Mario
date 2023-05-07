@@ -1,6 +1,6 @@
 // Assets
-import star from '../data/star.png';
-import starblock from '../data/starblock.png';
+import star from '../data/images/star.png';
+import starblock from '../data/images/starblock.png';
 import { Subject } from '../src/Subject';
 import { calcCoordinates, collisionTest, ij2xy } from './utilities';
 

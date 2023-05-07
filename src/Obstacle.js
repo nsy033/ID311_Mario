@@ -1,6 +1,6 @@
 // Assets
-import fire from '../data/fire.png';
-import thorn from '../data/thorn.png';
+import fire from '../data/images/fire.png';
+import thorn from '../data/images/thorn.png';
 import { Subject } from '../src/Subject';
 import {
   DIRECTION,
@@ -40,7 +40,7 @@ class Fire extends Subject {
     }
     resetMatrix();
 
-    if (GameManager.getInstance().getStatus() != STATUS.alive) return;
+    if (GameManager.getInstance().getStatus() == STATUS.gameover) return;
 
     if (this.dir == DIRECTION.up) this.y -= FIRE_STEP;
     else if (this.dir == DIRECTION.down) this.y += FIRE_STEP;

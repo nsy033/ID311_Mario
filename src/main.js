@@ -1,3 +1,11 @@
+//Assets
+import background from '../data/images/background.png';
+import titleTheme from '../data/sounds/TitleTheme.mp3';
+import itsMeMario from '../data/sounds/ItsMeMario.mp3';
+import gameStart from '../data/sounds/GameStart.mp3';
+import gameOver from '../data/sounds/GameOver.mp3';
+import courseClear from '../data/sounds/CourseClear.mp3';
+
 import '../css/style.css';
 import {
   CANVAS_WIDTH,
@@ -17,20 +25,34 @@ import { Mario } from '../src/Mario.js';
 import { GameManager } from './GameManager.js';
 
 const images = {};
+const sounds = {};
 let gameManager;
+let playButton;
 let map = [];
 let tiles = [];
 let directions = [];
 let mario;
 
 function preload() {
-  images['background'] = loadImage('../data/background.png');
+  images['background'] = loadImage(background);
+
+  sounds['titleTheme'] = loadSound(titleTheme);
+  sounds['itsMeMario'] = loadSound(itsMeMario);
+  sounds['gameStart'] = loadSound(gameStart);
+  sounds['gameOver'] = loadSound(gameOver);
+  sounds['courseClear'] = loadSound(courseClear);
 }
 
 function setup() {
   createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
 
-  gameManager = GameManager.getInstance();
+  gameManager = GameManager.getInstance(sounds);
+
+  playButton = createButton('Play')
+    .position(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2)
+    .mousePressed(() => {
+      gameManager.getStarted();
+    });
 
   map = MapFactory.getInstance().getTiles(1);
   directions = MapFactory.getInstance().getDirections(1);
@@ -103,19 +125,15 @@ function draw() {
   const gameStatus = gameManager.getStatus();
   clear();
 
-  if (gameStatus == STATUS.alive) {
-    image(images['background'], CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
-    drawMap();
-    mario.draw();
-  } else if (gameStatus == STATUS.gameover) {
-    image(images['background'], CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
-    drawMap();
-    mario.draw();
-  } else {
-    image(images['background'], CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
-    drawMap();
-    mario.draw();
-  }
+  image(images['background'], CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+  drawMap();
+  mario.draw();
+
+  if (gameStatus == STATUS.ready) {
+    fill('rgba(0, 0, 0, 0.5)');
+    rect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    playButton.show();
+  } else playButton.hide();
 }
 
 function keyPressed() {
@@ -132,7 +150,7 @@ function keyPressed() {
 function keyReleased(e) {
   const gameStatus = gameManager.getStatus();
   if (gameStatus == STATUS.alive) {
-    mario.beStable();
+    // mario.beStable();
     if (e.keyCode == 32 && mario.standOnSth()) {
       const curGravity = mario.getDirection(0);
       mario.setDirection((curGravity + 2) % 4);

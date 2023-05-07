@@ -1,3 +1,9 @@
+// Assets
+import mario_float from '../data/images/mario-float.png';
+import mario_stable from '../data/images/mario-stable.png';
+import mario_walk from '../data/images/mario-walk.png';
+import mario_hurt from '../data/images/mario-hurt.png';
+
 import {
   TILE_SIZE,
   MARIO_STEP,
@@ -5,10 +11,6 @@ import {
   DIRECTION,
   STATUS,
 } from '../src/Constants';
-import mario_float from '../data/mario-float.png';
-import mario_stable from '../data/mario-stable.png';
-import mario_walk from '../data/mario-walk.png';
-import mario_hurt from '../data/mario-hurt.png';
 import { Subject } from './Subject';
 import { calcCoordinates, ij2xy, xy2ij } from './utilities';
 import { GameManager } from './GameManager';
@@ -21,6 +23,7 @@ class Mario extends Subject {
     this.stable_img = loadImage(mario_stable);
     this.walk_img = loadImage(mario_walk);
     this.hurt_img = loadImage(mario_hurt);
+
     this.img2display = 1;
     this.gravityCache = new Set();
 

@@ -1,6 +1,6 @@
 // Assets
-import block from '../data/block.png';
-import grass from '../data/grass.png';
+import block from '../data/images/block.png';
+import grass from '../data/images/grass.png';
 import { Subject } from '../src/Subject';
 import { calcCoordinates, collisionTest, ij2xy } from './utilities';
 

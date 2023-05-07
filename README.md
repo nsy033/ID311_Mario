@@ -30,3 +30,6 @@
 
 | ![Stepping North](https://user-images.githubusercontent.com/76762181/232788189-a8227b37-816e-4581-9f0f-c536497ade5a.png) | ![Stepping East](https://user-images.githubusercontent.com/76762181/232788195-87171db2-b594-4770-bc59-0ccfa5c174d3.png) |
 | ------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+
+Original Sound Tracks 
+- https://downloads.khinsider.com/game-soundtracks/album/super-mario-64-soundtrack
