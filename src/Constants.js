@@ -1,5 +1,8 @@
 export const CANVAS_WIDTH = 1080;
 export const CANVAS_HEIGHT = 720;
+export const STARTBTN_WIDTH = 350;
+export const STARTBTN_HEIGHT = 50;
+
 export const TILE_SIZE = 45;
 export const HALF_TILE_SIZE = 45 / 2;
 export const TILE_W_COUNT = 24;
@@ -11,6 +14,10 @@ export const MARIO_MARGIN_TOP = 5;
 export const FIRE_STEP = 2;
 export const THORN_MARGIN = 10;
 export const TIME_INTERVAL = 50;
+
+export const ENDCIRCLE_SIZE = 1400;
+export const ENDCIRCLE_SIZE_STEP = 50;
+export const ENDCIRCLE_WEIGHT = 1200;
 
 export const CELL_TYPES = {
   empty: 0,

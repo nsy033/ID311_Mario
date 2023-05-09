@@ -1,5 +1,6 @@
 //Assets
 import background from '../data/images/background.png';
+import startgameButton from '../data/images/startgame-button.png';
 import titleTheme from '../data/sounds/TitleTheme.mp3';
 import itsMeMario from '../data/sounds/ItsMeMario.mp3';
 import gameStart from '../data/sounds/GameStart.mp3';
@@ -10,6 +11,8 @@ import '../css/style.css';
 import {
   CANVAS_WIDTH,
   CANVAS_HEIGHT,
+  STARTBTN_WIDTH,
+  STARTBTN_HEIGHT,
   TILE_W_COUNT,
   TILE_H_COUNT,
   TIME_INTERVAL,
@@ -27,7 +30,6 @@ import { GameManager } from './GameManager.js';
 const images = {};
 const sounds = {};
 let gameManager;
-let playButton;
 let map = [];
 let tiles = [];
 let directions = [];
@@ -35,6 +37,7 @@ let mario;
 
 function preload() {
   images['background'] = loadImage(background);
+  images['startgameButton'] = loadImage(startgameButton);
 
   sounds['titleTheme'] = loadSound(titleTheme);
   sounds['itsMeMario'] = loadSound(itsMeMario);
@@ -47,12 +50,6 @@ function setup() {
   createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
 
   gameManager = GameManager.getInstance(sounds);
-
-  playButton = createButton('Play')
-    .position(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2)
-    .mousePressed(() => {
-      gameManager.getStarted();
-    });
 
   map = MapFactory.getInstance().getTiles(1);
   directions = MapFactory.getInstance().getDirections(1);
@@ -132,8 +129,37 @@ function draw() {
   if (gameStatus == STATUS.ready) {
     fill('rgba(0, 0, 0, 0.5)');
     rect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    playButton.show();
-  } else playButton.hide();
+    image(
+      images['startgameButton'],
+      CANVAS_WIDTH / 2,
+      CANVAS_HEIGHT / 2,
+      STARTBTN_WIDTH,
+      STARTBTN_HEIGHT
+    );
+  } else if (gameStatus == STATUS.gameover) {
+    gameManager.drawEnding(mario.getPosition());
+  } else if (gameStatus == STATUS.succeed) {
+    gameManager.drawEnding(mario.getPosition());
+  }
+}
+function gravityOperates() {
+  const gameStatus = gameManager.getStatus();
+  if (gameStatus == STATUS.alive) {
+    mario.recieveGravity();
+  }
+}
+
+function mousePressed() {
+  if (
+    gameManager?.getStatus() == STATUS.ready &&
+    CANVAS_WIDTH / 2 - STARTBTN_WIDTH / 2 <= mouseX &&
+    mouseX <= CANVAS_WIDTH / 2 + STARTBTN_WIDTH / 2 &&
+    CANVAS_HEIGHT / 2 - STARTBTN_HEIGHT / 2 <= mouseY &&
+    mouseY <= CANVAS_HEIGHT / 2 + STARTBTN_HEIGHT / 2
+  ) {
+    sounds['itsMeMario'].play();
+    setTimeout(() => gameManager.getStarted(), 2000);
+  }
 }
 
 function keyPressed() {
@@ -158,14 +184,8 @@ function keyReleased(e) {
   }
 }
 
-function gravityOperates() {
-  const gameStatus = gameManager.getStatus();
-  if (gameStatus == STATUS.alive) {
-    mario.recieveGravity();
-  }
-}
-
 window.preload = preload;
 window.setup = setup;
 window.draw = draw;
+window.mousePressed = mousePressed;
 window.keyReleased = keyReleased;
