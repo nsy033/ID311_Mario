@@ -3,6 +3,7 @@ import {
   HALF_TILE_SIZE,
   MARIO_MARGIN_LR,
   MARIO_MARGIN_TOP,
+  DIRECTION,
 } from './Constants';
 
 export const ij2xy = (i, j) => {
@@ -36,26 +37,79 @@ export const collisionTest = (coord1, coord2) => {
 
   return false;
 };
-export const calcCoordinates = (x, y, isMario) => {
+export const calcCoordinates = (x, y, isMario, dir) => {
   const coordinates = {};
 
   if (isMario) {
-    coordinates.upperLeft = {
-      x: x - HALF_TILE_SIZE + MARIO_MARGIN_LR,
-      y: y - HALF_TILE_SIZE + MARIO_MARGIN_TOP,
-    };
-    coordinates.upperRight = {
-      x: x + HALF_TILE_SIZE - MARIO_MARGIN_LR,
-      y: y - HALF_TILE_SIZE + MARIO_MARGIN_TOP,
-    };
-    coordinates.lowerLeft = {
-      x: x - HALF_TILE_SIZE + MARIO_MARGIN_LR,
-      y: y + HALF_TILE_SIZE,
-    };
-    coordinates.lowerRight = {
-      x: x + HALF_TILE_SIZE - MARIO_MARGIN_LR,
-      y: y + HALF_TILE_SIZE,
-    };
+    if (dir == DIRECTION.up) {
+      coordinates.upperLeft = {
+        x: x - HALF_TILE_SIZE + MARIO_MARGIN_LR,
+        y: y - HALF_TILE_SIZE + MARIO_MARGIN_TOP,
+      };
+      coordinates.upperRight = {
+        x: x + HALF_TILE_SIZE - MARIO_MARGIN_LR,
+        y: y - HALF_TILE_SIZE + MARIO_MARGIN_TOP,
+      };
+      coordinates.lowerLeft = {
+        x: x - HALF_TILE_SIZE + MARIO_MARGIN_LR,
+        y: y + HALF_TILE_SIZE,
+      };
+      coordinates.lowerRight = {
+        x: x + HALF_TILE_SIZE - MARIO_MARGIN_LR,
+        y: y + HALF_TILE_SIZE,
+      };
+    } else if (dir == DIRECTION.down) {
+      coordinates.upperLeft = {
+        x: x - HALF_TILE_SIZE + MARIO_MARGIN_LR,
+        y: y - HALF_TILE_SIZE,
+      };
+      coordinates.upperRight = {
+        x: x + HALF_TILE_SIZE - MARIO_MARGIN_LR,
+        y: y - HALF_TILE_SIZE,
+      };
+      coordinates.lowerLeft = {
+        x: x - HALF_TILE_SIZE + MARIO_MARGIN_LR,
+        y: y + HALF_TILE_SIZE - MARIO_MARGIN_TOP,
+      };
+      coordinates.lowerRight = {
+        x: x + HALF_TILE_SIZE - MARIO_MARGIN_LR,
+        y: y + HALF_TILE_SIZE - MARIO_MARGIN_TOP,
+      };
+    } else if (dir == DIRECTION.right) {
+      coordinates.upperLeft = {
+        x: x - HALF_TILE_SIZE + MARIO_MARGIN_TOP,
+        y: y - HALF_TILE_SIZE + MARIO_MARGIN_LR,
+      };
+      coordinates.upperRight = {
+        x: x + HALF_TILE_SIZE,
+        y: y - HALF_TILE_SIZE + MARIO_MARGIN_LR,
+      };
+      coordinates.lowerLeft = {
+        x: x - HALF_TILE_SIZE + MARIO_MARGIN_TOP,
+        y: y + HALF_TILE_SIZE - MARIO_MARGIN_LR,
+      };
+      coordinates.lowerRight = {
+        x: x + HALF_TILE_SIZE,
+        y: y + HALF_TILE_SIZE - MARIO_MARGIN_LR,
+      };
+    } else {
+      coordinates.upperLeft = {
+        x: x - HALF_TILE_SIZE,
+        y: y - HALF_TILE_SIZE + MARIO_MARGIN_LR,
+      };
+      coordinates.upperRight = {
+        x: x + HALF_TILE_SIZE - MARIO_MARGIN_TOP,
+        y: y - HALF_TILE_SIZE + MARIO_MARGIN_LR,
+      };
+      coordinates.lowerLeft = {
+        x: x - HALF_TILE_SIZE,
+        y: y + HALF_TILE_SIZE - MARIO_MARGIN_LR,
+      };
+      coordinates.lowerRight = {
+        x: x + HALF_TILE_SIZE - MARIO_MARGIN_TOP,
+        y: y + HALF_TILE_SIZE - MARIO_MARGIN_LR,
+      };
+    }
   } else {
     coordinates.upperLeft = {
       x: x - HALF_TILE_SIZE,

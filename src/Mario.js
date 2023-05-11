@@ -42,7 +42,7 @@ class Mario extends Subject {
     this.dir = dir;
     this.face = face;
 
-    this.coordinates = calcCoordinates(x, y, true);
+    this.coordinates = calcCoordinates(x, y, true, this.dir);
   }
 
   getPosition() {
@@ -96,7 +96,7 @@ class Mario extends Subject {
     if (this.dir % 2 == 0) this.x += MARIO_STEP * this.face;
     else this.y += MARIO_STEP * this.face;
 
-    this.coordinates = calcCoordinates(this.x, this.y, true);
+    this.coordinates = calcCoordinates(this.x, this.y, true, this.dir);
     this.notifySubscribers('mario-wants-to-move', this.coordinates);
 
     if (GameManager.getInstance().getStatus() != STATUS.alive) return;
@@ -114,7 +114,7 @@ class Mario extends Subject {
     else if (this.dir == DIRECTION.left) this.x -= GRAVITY_STEP;
     else if (this.dir == DIRECTION.right) this.x += GRAVITY_STEP;
 
-    this.coordinates = calcCoordinates(this.x, this.y, true);
+    this.coordinates = calcCoordinates(this.x, this.y, true, this.dir);
     this.notifySubscribers('mario-follows-gravity', this.coordinates);
   }
 
@@ -135,7 +135,7 @@ class Mario extends Subject {
       if (source.includes('collides')) {
         if (this.dir % 2 == 0) this.x -= MARIO_STEP * this.face;
         else this.y -= MARIO_STEP * this.face;
-        this.coordinates = calcCoordinates(this.x, this.y, true);
+        this.coordinates = calcCoordinates(this.x, this.y, true, this.dir);
       } else if (source.includes('holds')) {
         const [i, j] = xy2ij(this.x, this.y);
 
@@ -149,19 +149,18 @@ class Mario extends Subject {
           else if (this.dir == DIRECTION.up) this.y += GRAVITY_STEP;
           else if (this.dir == DIRECTION.left) this.x += GRAVITY_STEP;
           else if (this.dir == DIRECTION.right) this.x -= GRAVITY_STEP;
-          this.coordinates = calcCoordinates(this.x, this.y, true);
+          this.coordinates = calcCoordinates(this.x, this.y, true, this.dir);
         }
       } else if (source.includes('gravity-direction-changes')) {
         const { direction, center } = args[0];
-        // console.log(direction, center);
         if (direction != this.dir && direction % 2 == this.dir % 2) {
+          this.dir = this.dir == 0 ? 3 : this.dir - 1;
           const [i, j] = center;
           const [x, y] = ij2xy(i, j);
           this.x = x;
           this.y = y;
-          this.dir = this.dir == 0 ? 3 : this.dir - 1;
 
-          this.coordinates = calcCoordinates(x, y, true);
+          this.coordinates = calcCoordinates(x, y, true, this.dir);
         }
       }
     }
