@@ -13,11 +13,16 @@ export const MARIO_MARGIN_LR = 10;
 export const MARIO_MARGIN_TOP = 5;
 export const FIRE_STEP = 2;
 export const THORN_MARGIN = 10;
+export const PIPE_MARGIN = 12;
 export const TIME_INTERVAL = 50;
 
 export const ENDCIRCLE_SIZE = 1400;
 export const ENDCIRCLE_SIZE_STEP = 50;
 export const ENDCIRCLE_WEIGHT = 1200;
+export const SUCCESS_INTERVAL = 30;
+export const FAILURE_INTERVAL = 45;
+export const SUCCESS_TIMEOUT = 2000;
+export const FAILURE_TIMEOUT = 3000;
 
 export const CELL_TYPES = {
   empty: 0,

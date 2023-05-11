@@ -3,7 +3,11 @@ import {
   ENDCIRCLE_SIZE,
   ENDCIRCLE_SIZE_STEP,
   ENDCIRCLE_WEIGHT,
+  FAILURE_INTERVAL,
+  FAILURE_TIMEOUT,
   STATUS,
+  SUCCESS_INTERVAL,
+  SUCCESS_TIMEOUT,
 } from './Constants';
 
 class GameManager {
@@ -53,21 +57,25 @@ class GameManager {
                 ? this.gameoverCircle.size - ENDCIRCLE_SIZE_STEP
                 : ENDCIRCLE_SIZE;
           },
-          isSuccessful ? 30 : 50
+          isSuccessful ? SUCCESS_INTERVAL : FAILURE_INTERVAL
         );
       },
-      isSuccessful ? 2000 : 3000
+      isSuccessful ? SUCCESS_TIMEOUT : FAILURE_TIMEOUT
     );
   }
 
   update(source, ...args) {
-    if (source.includes('gameover')) {
+    if (source.includes('gameover') && this.getStatus() != STATUS.gameover) {
       this.setStatus(STATUS.gameover);
+
       this.sounds['titleTheme'].stop();
       this.sounds['gameOver'].play();
 
       this.animateEndingMotion(false);
-    } else if (source.includes('succeed')) {
+    } else if (
+      source.includes('succeed') &&
+      this.getStatus() != STATUS.succeed
+    ) {
       this.setStatus(STATUS.succeed);
       this.sounds['titleTheme'].stop();
       this.sounds['courseClear'].play();

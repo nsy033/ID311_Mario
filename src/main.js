@@ -177,10 +177,18 @@ function mousePressed() {
 function keyPressed() {
   const gameStatus = gameManager.getStatus();
   if (gameStatus == STATUS.alive) {
-    if (keyIsDown(RIGHT_ARROW)) {
-      mario.move(1);
-    } else if (keyIsDown(LEFT_ARROW)) {
-      mario.move(-1);
+    if (mario.getDirection() % 2 == 0) {
+      if (keyIsDown(RIGHT_ARROW)) {
+        mario.move(1);
+      } else if (keyIsDown(LEFT_ARROW)) {
+        mario.move(-1);
+      }
+    } else {
+      if (keyIsDown(DOWN_ARROW)) {
+        mario.move(1);
+      } else if (keyIsDown(UP_ARROW)) {
+        mario.move(-1);
+      }
     }
   }
 }

@@ -6,27 +6,44 @@ import right from '../data/images/pipe-right.png';
 import center from '../data/images/pipe-center.png';
 
 import { Subject } from './Subject';
-import { GameManager } from './GameManager';
-import { TILE_SIZE, STATUS } from './Constants';
+import { TILE_SIZE, DIRECTION, PIPE_MARGIN } from './Constants';
 import { calcCoordinates, collisionTest, ij2xy } from './utilities';
 
 class Pipe extends Subject {
   constructor(i, j, dir) {
     super(i, j, dir);
 
-    this.dx = [0, 0, 0, 1, -1];
-    this.dy = [0, 1, -1, 0, 0];
+    this.dx = [-1, 0, 1, 0, 0];
+    this.dy = [0, -1, 0, 1, 0];
     this.pipes = [];
-    this.pipes.push(loadImage(center));
-    this.pipes.push(loadImage(right));
+    this.pipes.push(loadImage(up));
     this.pipes.push(loadImage(left));
     this.pipes.push(loadImage(down));
-    this.pipes.push(loadImage(up));
+    this.pipes.push(loadImage(right));
+    this.pipes.push(loadImage(center));
 
-    const [x, y] = ij2xy(this.i, this.j);
-    this.coordinates = calcCoordinates(x, y, false);
+    this.coordinates = [];
+    for (let variant = 0; variant < 5; variant++) {
+      const [x, y] = ij2xy(
+        this.i + this.dy[variant],
+        this.j + this.dx[variant]
+      );
+      this.coordinates[variant] = calcCoordinates(x, y, false);
 
-    this.angle = 0;
+      if (variant == DIRECTION.up) {
+        this.coordinates[variant].upperLeft.y += PIPE_MARGIN;
+        this.coordinates[variant].upperRight.y += PIPE_MARGIN;
+      } else if (variant == DIRECTION.left) {
+        this.coordinates[variant].upperLeft.x += PIPE_MARGIN;
+        this.coordinates[variant].lowerLeft.x += PIPE_MARGIN;
+      } else if (variant == DIRECTION.down) {
+        this.coordinates[variant].lowerLeft.y -= PIPE_MARGIN;
+        this.coordinates[variant].lowerRight.y -= PIPE_MARGIN;
+      } else if (variant == DIRECTION.right) {
+        this.coordinates[variant].upperRight.x -= PIPE_MARGIN;
+        this.coordinates[variant].lowerRight.x -= PIPE_MARGIN;
+      }
+    }
   }
 
   draw() {
@@ -37,24 +54,34 @@ class Pipe extends Subject {
       );
       image(this.pipes[variant], x, y, TILE_SIZE, TILE_SIZE);
     }
-
-    resetMatrix();
-
-    if (GameManager.getInstance().getStatus() == STATUS.gameover) return;
   }
 
   update(source, ...args) {
     if (source == 'mario-wants-to-move') {
-      if (collisionTest(this.coordinates, args[0])) {
-        this.notifySubscribers('gravity-direction-changes', this.coordinates);
+      for (let variant = 0; variant < 4; variant++) {
+        if (collisionTest(this.coordinates[variant], args[0])) {
+          this.notifySubscribers('gravity-direction-changes', {
+            direction: variant,
+            center: [this.i, this.j],
+          });
+          break;
+        }
       }
     } else if (source == 'mario-follows-gravity') {
-      if (collisionTest(this.coordinates, args[0])) {
-        this.notifySubscribers('gravity-direction-changes', this.coordinates);
+      for (let variant = 0; variant < 4; variant++) {
+        if (collisionTest(this.coordinates[variant], args[0])) {
+          this.notifySubscribers('gravity-direction-changes', {
+            direction: variant,
+            center: [this.i, this.j],
+          });
+          break;
+        }
       }
     } else if (source == 'fire-wants-to-move') {
-      if (collisionTest(this.coordinates, args[0])) {
-        this.notifySubscribers('directioner-change-fire-dir', args[1], args[2]);
+      for (let variant = 0; variant < 5; variant++) {
+        if (collisionTest(this.coordinates[variant], args[0])) {
+          this.notifySubscribers('pipe-change-fire-dir', args[1], args[2]);
+        }
       }
     }
   }
