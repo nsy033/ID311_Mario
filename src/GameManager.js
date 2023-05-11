@@ -10,7 +10,10 @@ class GameManager {
   constructor(sounds) {
     this.status = STATUS.ready;
     this.sounds = sounds;
-    this.gameoverCircle = { size: CANVAS_WIDTH * 3, weight: ENDCIRCLE_WEIGHT };
+    this.gameoverCircle = {
+      size: CANVAS_WIDTH * 3.5,
+      weight: ENDCIRCLE_WEIGHT,
+    };
   }
 
   static getInstance(sounds) {

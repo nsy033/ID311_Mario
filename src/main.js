@@ -26,6 +26,7 @@ import { Star, StarBlock } from '../src/Star';
 import { Fire, Thorn } from '../src/Obstacle.js';
 import { Mario } from '../src/Mario.js';
 import { GameManager } from './GameManager.js';
+import { Pipe } from './Pipe';
 
 const images = {};
 const sounds = {};
@@ -81,6 +82,8 @@ function setup() {
           fires.push(tiles[j][i]);
         } else if (map[j][i] == CELL_TYPES.thorn) {
           tiles[j][i] = new Thorn(i, j, dir);
+        } else if (map[j][i] == CELL_TYPES.pipe) {
+          tiles[j][i] = new Pipe(i, j, dir);
         }
         tiles[j][i].subscribe(gameManager);
       }
@@ -118,6 +121,14 @@ function drawMap() {
   }
 }
 
+function drawPipe() {
+  for (let j = 0; j < TILE_H_COUNT; j++) {
+    for (let i = 0; i < TILE_W_COUNT; i++) {
+      if (map[j][i] == 7) tiles[j][i].draw();
+    }
+  }
+}
+
 function draw() {
   const gameStatus = gameManager.getStatus();
   clear();
@@ -125,6 +136,7 @@ function draw() {
   image(images['background'], CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
   drawMap();
   mario.draw();
+  drawPipe();
 
   if (gameStatus == STATUS.ready) {
     fill('rgba(0, 0, 0, 0.5)');
@@ -145,7 +157,7 @@ function draw() {
 function gravityOperates() {
   const gameStatus = gameManager.getStatus();
   if (gameStatus == STATUS.alive) {
-    mario.recieveGravity();
+    mario.receiveGravity();
   }
 }
 

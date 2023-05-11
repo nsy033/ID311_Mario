@@ -27,6 +27,7 @@ export const CELL_TYPES = {
   starblock: 4,
   fire: 5,
   thorn: 6,
+  pipe: 7,
 };
 export const DIRECTION = {
   up: 0,

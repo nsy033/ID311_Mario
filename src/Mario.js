@@ -102,7 +102,7 @@ class Mario extends Subject {
     if (this.img2display > 2) this.img2display = 1;
   }
 
-  recieveGravity() {
+  receiveGravity() {
     this.gravityCache.clear();
     this.img2display = 0;
 
