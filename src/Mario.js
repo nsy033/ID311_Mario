@@ -3,6 +3,7 @@ import mario_float from '../data/images/mario-float.png';
 import mario_stable from '../data/images/mario-stable.png';
 import mario_walk from '../data/images/mario-walk.png';
 import mario_hurt from '../data/images/mario-hurt.png';
+import pipe_sound from '../data/sounds/pipe-sound-effect.mp3';
 
 import {
   TILE_SIZE,
@@ -23,6 +24,7 @@ class Mario extends Subject {
     this.stable_img = loadImage(mario_stable);
     this.walk_img = loadImage(mario_walk);
     this.hurt_img = loadImage(mario_hurt);
+    this.pipe_sound = loadSound(pipe_sound);
 
     this.img2display = 1;
     this.gravityCache = new Set();
@@ -154,6 +156,8 @@ class Mario extends Subject {
       } else if (source.includes('gravity-direction-changes')) {
         const { direction, center } = args[0];
         if (direction != this.dir && direction % 2 == this.dir % 2) {
+          this.pipe_sound.play();
+
           this.dir = this.dir == 0 ? 3 : this.dir - 1;
           const [i, j] = center;
           const [x, y] = ij2xy(i, j);

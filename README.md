@@ -33,3 +33,5 @@
 
 Original Sound Tracks 
 - https://downloads.khinsider.com/game-soundtracks/album/super-mario-64-soundtrack
+Sound Effects
+- https://www.myinstants.com/ko/index/kr/

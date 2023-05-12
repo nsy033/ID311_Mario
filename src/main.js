@@ -6,6 +6,7 @@ import itsMeMario from '../data/sounds/ItsMeMario.mp3';
 import gameStart from '../data/sounds/GameStart.mp3';
 import gameOver from '../data/sounds/GameOver.mp3';
 import courseClear from '../data/sounds/CourseClear.mp3';
+import jumpSound from '../data/sounds/jump-sound-effect.mp3';
 
 import '../css/style.css';
 import {
@@ -45,6 +46,7 @@ function preload() {
   sounds['gameStart'] = loadSound(gameStart);
   sounds['gameOver'] = loadSound(gameOver);
   sounds['courseClear'] = loadSound(courseClear);
+  sounds['jumpSound'] = loadSound(jumpSound);
 }
 
 function setup() {
@@ -198,6 +200,7 @@ function keyReleased(e) {
   if (gameStatus == STATUS.alive) {
     // mario.beStable();
     if (e.keyCode == 32 && mario.standOnSth()) {
+      sounds['jumpSound'].play();
       const curGravity = mario.getDirection(0);
       mario.setDirection((curGravity + 2) % 4);
     }
