@@ -149,7 +149,7 @@ function draw() {
     );
 
     text(
-      `TRIALS\t ${
+      `TRIAL\t ${
         gameManager.getTrials() - Number(gameStatus == STATUS.theEnd)
       }`,
       CANVAS_WIDTH / 3,

@@ -63,6 +63,7 @@ class Pipe extends Subject {
           this.notifySubscribers('gravity-direction-changes', {
             direction: variant,
             center: [this.i, this.j],
+            clockwise: this.dir,
           });
           break;
         }
@@ -73,6 +74,7 @@ class Pipe extends Subject {
           this.notifySubscribers('gravity-direction-changes', {
             direction: variant,
             center: [this.i, this.j],
+            clockwise: this.dir,
           });
           break;
         }

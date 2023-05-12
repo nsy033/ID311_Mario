@@ -187,11 +187,7 @@ class GameManager {
       HALF_TILE_SIZE
     );
 
-    text(
-      `TRIALS\t${this.trials}`,
-      CANVAS_WIDTH - TILE_SIZE * 2,
-      HALF_TILE_SIZE
-    );
+    text(`TRIAL\t${this.trials}`, CANVAS_WIDTH - TILE_SIZE * 2, HALF_TILE_SIZE);
   }
 
   getGameSummaryStartingPoint() {

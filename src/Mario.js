@@ -154,11 +154,12 @@ class Mario extends Subject {
           this.coordinates = calcCoordinates(this.x, this.y, true, this.dir);
         }
       } else if (source.includes('gravity-direction-changes')) {
-        const { direction, center } = args[0];
+        const { direction, center, clockwise } = args[0];
         if (direction != this.dir && direction % 2 == this.dir % 2) {
           this.pipe_sound.play();
 
-          this.dir = this.dir == 0 ? 3 : this.dir - 1;
+          if (clockwise == 0) this.dir = this.dir == 0 ? 3 : this.dir - 1;
+          else this.dir = this.dir == 3 ? 0 : this.dir + 1;
           const [i, j] = center;
           const [x, y] = ij2xy(i, j);
           this.x = x;
