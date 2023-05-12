@@ -18,6 +18,7 @@ import {
   HALF_TILE_SIZE,
   TIMEBUFFER,
   TILE_SIZE,
+  CANVAS_HEIGHT,
 } from './Constants';
 
 import { Block, Grass } from '../src/Block';
@@ -133,14 +134,13 @@ class GameManager {
   getCurStage() {
     return this.curStage;
   }
-  getStage() {
+  getStageSetup() {
     if (this.stageLoaded) return [this.map, this.tiles];
     else return this.setupStage();
   }
 
   getStarted() {
     if (this.getStatus() != STATUS.alive) {
-      console.log(this.buttonImg);
       if (this.buttonImg != this.buttons['continueButton']) this.trials++;
 
       this.setStatus(STATUS.alive);
@@ -170,6 +170,17 @@ class GameManager {
       CANVAS_WIDTH - TILE_SIZE * 2,
       HALF_TILE_SIZE
     );
+  }
+
+  getGameSummaryStartingPoint() {
+    return this.yStartingPoint;
+  }
+  setGameSummaryStartingPoint() {
+    this.yStartingPoint = CANVAS_HEIGHT / 1.5;
+
+    setInterval(() => {
+      if (this.yStartingPoint > 0) this.yStartingPoint--;
+    }, 10);
   }
 
   drawEnding({ x, y }) {
@@ -212,6 +223,7 @@ class GameManager {
         this.sounds['allClear'].play();
         this.buttonImg = this.buttons['congratulations'];
         this.setStatus(STATUS.allCleared);
+        this.setGameSummaryStartingPoint();
       }
     }, ENDCIRCLE_TIMEOUT * 2 + TIMEBUFFER);
   }

@@ -53,7 +53,7 @@ function setup() {
 
   mario = Mario.getInstance();
   gameManager = GameManager.getInstance(sounds);
-  [map, tiles] = gameManager.getStage();
+  [map, tiles] = gameManager.getStageSetup();
 
   setInterval(() => {
     keyPressed();
@@ -94,7 +94,7 @@ function draw() {
   drawPipe();
 
   const gameStatus = gameManager.getStatus();
-  [map, tiles] = gameManager.getStage();
+  [map, tiles] = gameManager.getStageSetup();
   gameManager.drawStageInfo();
 
   if (gameStatus == STATUS.ready) {
@@ -116,6 +116,8 @@ function draw() {
   } else if (gameStatus == STATUS.succeed) {
     gameManager.drawEnding(mario.getPosition());
   } else if (gameStatus == STATUS.allCleared) {
+    const yStartingPoint = gameManager.getGameSummaryStartingPoint();
+
     fill(0);
     noStroke();
     rect(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -126,7 +128,7 @@ function draw() {
     image(
       btnImg,
       CANVAS_WIDTH / 2 + jitter.x,
-      CANVAS_HEIGHT / 2 + jitter.y - TILE_SIZE * 1.5,
+      CANVAS_HEIGHT / 2 + jitter.y - TILE_SIZE * 1.5 + yStartingPoint,
       Math.floor(BTN_HEIGHT * btnRatio),
       BTN_HEIGHT
     );
@@ -134,15 +136,15 @@ function draw() {
     fill(255);
     noStroke();
     text(
-      `UPTO STAGE\t ${gameManager.getStage()} / ${TOTAL_STAGES}`,
+      `UPTO STAGE\t ${gameManager.getCurStage()} / ${TOTAL_STAGES}`,
       CANVAS_WIDTH / 2,
-      CANVAS_HEIGHT / 2 + HALF_TILE_SIZE
+      CANVAS_HEIGHT / 2 + HALF_TILE_SIZE + yStartingPoint
     );
 
     text(
       `TRIALS\t ${gameManager.getTrials()}`,
       CANVAS_WIDTH / 2,
-      CANVAS_HEIGHT / 2 + TILE_SIZE * 1.5
+      CANVAS_HEIGHT / 2 + TILE_SIZE * 1.5 + yStartingPoint
     );
   }
 }
