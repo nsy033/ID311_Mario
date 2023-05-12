@@ -1,113 +1,59 @@
 //Assets
 import background from '../data/images/background.png';
-import startgameButton from '../data/images/startgame-button.png';
 import titleTheme from '../data/sounds/TitleTheme.mp3';
 import itsMeMario from '../data/sounds/ItsMeMario.mp3';
 import gameStart from '../data/sounds/GameStart.mp3';
-import gameOver from '../data/sounds/GameOver.mp3';
+import gameOver from '../data/sounds/death-sound-effect.mp3';
 import courseClear from '../data/sounds/CourseClear.mp3';
+import allClear from '../data/sounds/stage-clear-sound-effect.mp3';
 import jumpSound from '../data/sounds/jump-sound-effect.mp3';
+import coinSound from '../data/sounds/coin-sound-effect.mp3';
 
 import '../css/style.css';
 import {
   CANVAS_WIDTH,
   CANVAS_HEIGHT,
-  STARTBTN_WIDTH,
-  STARTBTN_HEIGHT,
+  BTN_HEIGHT,
   TILE_W_COUNT,
   TILE_H_COUNT,
   TIME_INTERVAL,
-  CELL_TYPES,
   STATUS,
+  TOTAL_STAGES,
+  TILE_SIZE,
+  HALF_TILE_SIZE,
 } from './Constants.js';
-import { MapFactory } from './Map.js';
-
-import { Block, Grass } from '../src/Block';
-import { Star, StarBlock } from '../src/Star';
-import { Fire, Thorn } from '../src/Obstacle.js';
 import { Mario } from '../src/Mario.js';
 import { GameManager } from './GameManager.js';
-import { Pipe } from './Pipe';
 
 const images = {};
 const sounds = {};
 let gameManager;
 let map = [];
 let tiles = [];
-let directions = [];
-let startPos = [];
 let mario;
 
 function preload() {
   images['background'] = loadImage(background);
-  images['startgameButton'] = loadImage(startgameButton);
 
   sounds['titleTheme'] = loadSound(titleTheme);
   sounds['itsMeMario'] = loadSound(itsMeMario);
   sounds['gameStart'] = loadSound(gameStart);
   sounds['gameOver'] = loadSound(gameOver);
   sounds['courseClear'] = loadSound(courseClear);
+  sounds['allClear'] = loadSound(allClear);
   sounds['jumpSound'] = loadSound(jumpSound);
+  sounds['coinSound'] = loadSound(coinSound);
 }
 
 function setup() {
   createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
-
-  gameManager = GameManager.getInstance(sounds);
-
-  map = MapFactory.getInstance().getTiles(2);
-  directions = MapFactory.getInstance().getDirections(2);
-  startPos = MapFactory.getInstance().getStartPositions(2);
   imageMode(CENTER);
+  rectMode(CENTER);
   angleMode(DEGREES);
 
   mario = Mario.getInstance();
-  mario.setPosition(...startPos);
-
-  const fires = [];
-
-  for (let j = 0; j < TILE_H_COUNT; j++) {
-    tiles.push(new Array(TILE_W_COUNT));
-    for (let i = 0; i < TILE_W_COUNT; i++) {
-      const dir = directions[j][i];
-      if (map[j][i] == CELL_TYPES.empty) continue;
-
-      if (map[j][i] == CELL_TYPES.block) {
-        tiles[j][i] = new Block(i, j, dir);
-      } else if (map[j][i] == CELL_TYPES.grass) {
-        tiles[j][i] = new Grass(i, j, dir);
-      } else {
-        if (map[j][i] == CELL_TYPES.star) {
-          tiles[j][i] = new Star(i, j, dir);
-        } else if (map[j][i] == CELL_TYPES.starblock) {
-          tiles[j][i] = new StarBlock(i, j, dir);
-        } else if (map[j][i] == CELL_TYPES.fire) {
-          tiles[j][i] = new Fire(i, j, dir);
-          fires.push(tiles[j][i]);
-        } else if (map[j][i] == CELL_TYPES.thorn) {
-          tiles[j][i] = new Thorn(i, j, dir);
-        } else if (map[j][i] == CELL_TYPES.pipe) {
-          tiles[j][i] = new Pipe(i, j, dir);
-        }
-        tiles[j][i].subscribe(gameManager);
-      }
-
-      mario.subscribe(tiles[j][i]);
-      tiles[j][i].subscribe(mario);
-    }
-  }
-
-  for (let j = 0; j < TILE_H_COUNT; j++) {
-    for (let i = 0; i < TILE_W_COUNT; i++) {
-      if (typeof tiles[j][i] != 'object') continue;
-
-      for (const fire of fires) {
-        if (fire == tiles[j][i]) continue;
-        tiles[j][i].subscribe(fire);
-        fire.subscribe(tiles[j][i]);
-      }
-    }
-  }
+  gameManager = GameManager.getInstance(sounds);
+  [map, tiles] = gameManager.getStage();
 
   setInterval(() => {
     keyPressed();
@@ -134,7 +80,6 @@ function drawPipe() {
 }
 
 function draw() {
-  const gameStatus = gameManager.getStatus();
   clear();
 
   image(
@@ -148,20 +93,57 @@ function draw() {
   mario.draw();
   drawPipe();
 
+  const gameStatus = gameManager.getStatus();
+  [map, tiles] = gameManager.getStage();
+  gameManager.drawStageInfo();
+
   if (gameStatus == STATUS.ready) {
     fill('rgba(0, 0, 0, 0.5)');
-    rect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    noStroke();
+    rect(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+    const btnImg = gameManager.getButton();
+    const btnRatio = btnImg.width / btnImg.height;
     image(
-      images['startgameButton'],
+      btnImg,
       CANVAS_WIDTH / 2,
       CANVAS_HEIGHT / 2,
-      STARTBTN_WIDTH,
-      STARTBTN_HEIGHT
+      Math.floor(BTN_HEIGHT * btnRatio),
+      BTN_HEIGHT
     );
   } else if (gameStatus == STATUS.gameover) {
     gameManager.drawEnding(mario.getPosition());
   } else if (gameStatus == STATUS.succeed) {
     gameManager.drawEnding(mario.getPosition());
+  } else if (gameStatus == STATUS.allCleared) {
+    fill(0);
+    noStroke();
+    rect(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+    const btnImg = gameManager.getButton();
+    const btnRatio = btnImg.width / btnImg.height;
+    const jitter = { x: random(-1, 1), y: random(-1, 1) };
+    image(
+      btnImg,
+      CANVAS_WIDTH / 2 + jitter.x,
+      CANVAS_HEIGHT / 2 + jitter.y - TILE_SIZE * 1.5,
+      Math.floor(BTN_HEIGHT * btnRatio),
+      BTN_HEIGHT
+    );
+
+    fill(255);
+    noStroke();
+    text(
+      `UPTO STAGE\t ${gameManager.getStage()} / ${TOTAL_STAGES}`,
+      CANVAS_WIDTH / 2,
+      CANVAS_HEIGHT / 2 + HALF_TILE_SIZE
+    );
+
+    text(
+      `TRIALS\t ${gameManager.getTrials()}`,
+      CANVAS_WIDTH / 2,
+      CANVAS_HEIGHT / 2 + TILE_SIZE * 1.5
+    );
   }
 }
 function gravityOperates() {
@@ -172,15 +154,23 @@ function gravityOperates() {
 }
 
 function mousePressed() {
+  const btnImg = gameManager.getButton();
+  const btnRatio = btnImg.width / btnImg.height;
+  const BTN_WIDTH = Math.floor(BTN_HEIGHT * btnRatio);
   if (
     gameManager?.getStatus() == STATUS.ready &&
-    CANVAS_WIDTH / 2 - STARTBTN_WIDTH / 2 <= mouseX &&
-    mouseX <= CANVAS_WIDTH / 2 + STARTBTN_WIDTH / 2 &&
-    CANVAS_HEIGHT / 2 - STARTBTN_HEIGHT / 2 <= mouseY &&
-    mouseY <= CANVAS_HEIGHT / 2 + STARTBTN_HEIGHT / 2
+    CANVAS_WIDTH / 2 - BTN_WIDTH / 2 <= mouseX &&
+    mouseX <= CANVAS_WIDTH / 2 + BTN_WIDTH / 2 &&
+    CANVAS_HEIGHT / 2 - BTN_HEIGHT / 2 <= mouseY &&
+    mouseY <= CANVAS_HEIGHT / 2 + BTN_HEIGHT / 2
   ) {
-    sounds['itsMeMario'].play();
-    setTimeout(() => gameManager.getStarted(), 2000);
+    if (gameManager.getTrials() == 0) {
+      sounds['itsMeMario'].play();
+      setTimeout(() => gameManager.getStarted(), 2000);
+    } else {
+      sounds['coinSound'].play();
+      setTimeout(() => gameManager.getStarted(), 500);
+    }
   }
 }
 
@@ -206,7 +196,6 @@ function keyPressed() {
 function keyReleased(e) {
   const gameStatus = gameManager.getStatus();
   if (gameStatus == STATUS.alive) {
-    // mario.beStable();
     if (e.keyCode == 32 && mario.standOnSth()) {
       sounds['jumpSound'].play();
       const curGravity = mario.getDirection(0);

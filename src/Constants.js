@@ -1,7 +1,6 @@
 export const CANVAS_WIDTH = 1200;
 export const CANVAS_HEIGHT = 800;
-export const STARTBTN_WIDTH = 350;
-export const STARTBTN_HEIGHT = 50;
+export const BTN_HEIGHT = 50;
 
 export const TILE_SIZE = 50;
 export const HALF_TILE_SIZE = 25;
@@ -19,10 +18,11 @@ export const TIME_INTERVAL = 50;
 export const ENDCIRCLE_SIZE = 1400;
 export const ENDCIRCLE_SIZE_STEP = 50;
 export const ENDCIRCLE_WEIGHT = 1200;
-export const SUCCESS_INTERVAL = 25;
-export const FAILURE_INTERVAL = 40;
-export const SUCCESS_TIMEOUT = 2000;
-export const FAILURE_TIMEOUT = 3000;
+export const ENDCIRCLE_INTERVAL = 25;
+export const ENDCIRCLE_TIMEOUT = 2000;
+export const TIMEBUFFER = 500;
+
+export const TOTAL_STAGES = 1;
 
 export const CELL_TYPES = {
   empty: 0,
@@ -45,4 +45,5 @@ export const STATUS = {
   gameover: 1,
   succeed: 2,
   ready: 100,
+  allCleared: 200,
 };
