@@ -144,7 +144,7 @@ function draw() {
     textAlign(LEFT, TOP);
     text(
       `UPTO STAGE\t ${gameManager.getCurStage()} / ${TOTAL_STAGES}`,
-      CANVAS_WIDTH / 3,
+      CANVAS_WIDTH / 2.75,
       CANVAS_HEIGHT / 2 + HALF_TILE_SIZE + yStartingPoint
     );
 
@@ -152,13 +152,13 @@ function draw() {
       `TRIAL\t ${
         gameManager.getTrials() - Number(gameStatus == STATUS.theEnd)
       }`,
-      CANVAS_WIDTH / 3,
+      CANVAS_WIDTH / 2.75,
       CANVAS_HEIGHT / 2 + TILE_SIZE * 1.5 + yStartingPoint
     );
 
     text(
       `LIFE`,
-      CANVAS_WIDTH / 3,
+      CANVAS_WIDTH / 2.75,
       CANVAS_HEIGHT / 2 + TILE_SIZE * 2.5 + yStartingPoint
     );
     const heartOnCnt = Math.min(
@@ -168,7 +168,7 @@ function draw() {
     for (let i = 1; i <= TOTAL_LIVES; i++) {
       image(
         i <= heartOnCnt ? gameManager.hearts['on'] : gameManager.hearts['off'],
-        CANVAS_WIDTH / 2.5 + TILE_SIZE * i * 0.75,
+        CANVAS_WIDTH / 2.3 + TILE_SIZE * i * 0.75,
         CANVAS_HEIGHT / 2 + TILE_SIZE * 2.75 + yStartingPoint,
         TILE_SIZE,
         TILE_SIZE
@@ -226,11 +226,20 @@ function keyPressed() {
 
 function keyReleased(e) {
   const gameStatus = gameManager.getStatus();
-  if (gameStatus == STATUS.alive) {
-    if (e.keyCode == 32 && mario.standOnSth()) {
+  if (e.keyCode == 32) {
+    if (gameStatus == STATUS.alive && mario.standOnSth()) {
       sounds['jumpSound'].play();
       const curGravity = mario.getDirection(0);
       mario.setDirection((curGravity + 2) % 4);
+    } else if (gameStatus == STATUS.ready) {
+      if (gameManager.gameStart) {
+        sounds['itsMeMario'].play();
+        gameManager.gameStart = false;
+        setTimeout(() => gameManager.getStarted(), 2000);
+      } else {
+        sounds['coinSound'].play();
+        setTimeout(() => gameManager.getStarted(), 500);
+      }
     }
   }
 }
