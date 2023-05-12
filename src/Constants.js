@@ -23,6 +23,7 @@ export const ENDCIRCLE_TIMEOUT = 2000;
 export const TIMEBUFFER = 500;
 
 export const TOTAL_STAGES = 2;
+export const TOTAL_LIVES = 2;
 
 export const CELL_TYPES = {
   empty: 0,
@@ -46,4 +47,5 @@ export const STATUS = {
   succeed: 2,
   ready: 100,
   allCleared: 200,
+  theEnd: 300,
 };

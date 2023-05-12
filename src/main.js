@@ -6,6 +6,7 @@ import gameStart from '../data/sounds/GameStart.mp3';
 import gameOver from '../data/sounds/death-sound-effect.mp3';
 import courseClear from '../data/sounds/CourseClear.mp3';
 import allClear from '../data/sounds/stage-clear-sound-effect.mp3';
+import theEnd from '../data/sounds/gameover.mp3';
 import jumpSound from '../data/sounds/jump-sound-effect.mp3';
 import coinSound from '../data/sounds/coin-sound-effect.mp3';
 
@@ -21,6 +22,7 @@ import {
   TOTAL_STAGES,
   TILE_SIZE,
   HALF_TILE_SIZE,
+  TOTAL_LIVES,
 } from './Constants.js';
 import { Mario } from '../src/Mario.js';
 import { GameManager } from './GameManager.js';
@@ -41,6 +43,7 @@ function preload() {
   sounds['gameOver'] = loadSound(gameOver);
   sounds['courseClear'] = loadSound(courseClear);
   sounds['allClear'] = loadSound(allClear);
+  sounds['theEnd'] = loadSound(theEnd);
   sounds['jumpSound'] = loadSound(jumpSound);
   sounds['coinSound'] = loadSound(coinSound);
 }
@@ -113,9 +116,11 @@ function draw() {
     );
   } else if (gameStatus == STATUS.gameover) {
     gameManager.drawEnding(mario.getPosition());
+    gameManager.drawStageInfo();
   } else if (gameStatus == STATUS.succeed) {
     gameManager.drawEnding(mario.getPosition());
-  } else if (gameStatus == STATUS.allCleared) {
+    gameManager.drawStageInfo();
+  } else if (gameStatus == STATUS.allCleared || gameStatus == STATUS.theEnd) {
     const yStartingPoint = gameManager.getGameSummaryStartingPoint();
 
     fill(0);
@@ -135,17 +140,40 @@ function draw() {
 
     fill(255);
     noStroke();
+
+    textAlign(LEFT, TOP);
     text(
       `UPTO STAGE\t ${gameManager.getCurStage()} / ${TOTAL_STAGES}`,
-      CANVAS_WIDTH / 2,
+      CANVAS_WIDTH / 3,
       CANVAS_HEIGHT / 2 + HALF_TILE_SIZE + yStartingPoint
     );
 
     text(
-      `TRIALS\t ${gameManager.getTrials()}`,
-      CANVAS_WIDTH / 2,
+      `TRIALS\t ${
+        gameManager.getTrials() - Number(gameStatus == STATUS.theEnd)
+      }`,
+      CANVAS_WIDTH / 3,
       CANVAS_HEIGHT / 2 + TILE_SIZE * 1.5 + yStartingPoint
     );
+
+    text(
+      `LIFE`,
+      CANVAS_WIDTH / 3,
+      CANVAS_HEIGHT / 2 + TILE_SIZE * 2.5 + yStartingPoint
+    );
+    const heartOnCnt = Math.min(
+      TOTAL_LIVES - gameManager.getTrials() + 1,
+      TOTAL_LIVES
+    );
+    for (let i = 1; i <= TOTAL_LIVES; i++) {
+      image(
+        i <= heartOnCnt ? gameManager.hearts['on'] : gameManager.hearts['off'],
+        CANVAS_WIDTH / 2.5 + TILE_SIZE * i * 0.75,
+        CANVAS_HEIGHT / 2 + TILE_SIZE * 2.75 + yStartingPoint,
+        TILE_SIZE,
+        TILE_SIZE
+      );
+    }
   }
 }
 function gravityOperates() {
@@ -166,8 +194,9 @@ function mousePressed() {
     CANVAS_HEIGHT / 2 - BTN_HEIGHT / 2 <= mouseY &&
     mouseY <= CANVAS_HEIGHT / 2 + BTN_HEIGHT / 2
   ) {
-    if (gameManager.getTrials() == 0) {
+    if (gameManager.gameStart) {
       sounds['itsMeMario'].play();
+      gameManager.gameStart = false;
       setTimeout(() => gameManager.getStarted(), 2000);
     } else {
       sounds['coinSound'].play();

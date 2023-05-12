@@ -2,6 +2,9 @@ import startgameButton from '../data/images/startgame-button.png';
 import retryButton from '../data/images/retry-button.png';
 import continueButton from '../data/images/continue-button.png';
 import congratulations from '../data/images/congratulations.png';
+import gameover from '../data/images/gameover.png';
+import heartOn from '../data/images/heart-on.png';
+import heartOff from '../data/images/heart-off.png';
 
 import {
   CANVAS_WIDTH,
@@ -19,6 +22,7 @@ import {
   TIMEBUFFER,
   TILE_SIZE,
   CANVAS_HEIGHT,
+  TOTAL_LIVES,
 } from './Constants';
 
 import { Block, Grass } from '../src/Block';
@@ -35,10 +39,17 @@ class GameManager {
     this.buttons['retryButton'] = loadImage(retryButton);
     this.buttons['continueButton'] = loadImage(continueButton);
     this.buttons['congratulations'] = loadImage(congratulations);
+    this.buttons['gameover'] = loadImage(gameover);
     this.buttonImg = this.buttons['startgameButton'];
 
+    this.hearts = {};
+    this.hearts['on'] = loadImage(heartOn);
+    this.hearts['off'] = loadImage(heartOff);
+
     this.sounds = sounds;
-    this.trials = 0;
+
+    this.gameStart = true;
+    this.trials = 1;
 
     this.gameoverCircle = {
       size: CANVAS_WIDTH * 3.5,
@@ -141,8 +152,6 @@ class GameManager {
 
   getStarted() {
     if (this.getStatus() != STATUS.alive) {
-      if (this.buttonImg != this.buttons['continueButton']) this.trials++;
-
       this.setStatus(STATUS.alive);
       this.sounds['titleTheme'].loop();
     }
@@ -159,6 +168,19 @@ class GameManager {
 
     fill(255);
     noStroke();
+
+    text(`LIFE`, TILE_SIZE * 1.2, HALF_TILE_SIZE);
+    const heartOnCnt = Math.min(TOTAL_LIVES - this.trials + 1, TOTAL_LIVES);
+    for (let i = 1; i <= TOTAL_LIVES; i++) {
+      image(
+        i <= heartOnCnt ? this.hearts['on'] : this.hearts['off'],
+        TILE_SIZE * 1.5 + TILE_SIZE * i * 0.75,
+        TILE_SIZE * 0.75,
+        TILE_SIZE,
+        TILE_SIZE
+      );
+    }
+
     text(
       `STAGE\t${this.curStage} / ${TOTAL_STAGES}`,
       CANVAS_WIDTH / 2,
@@ -219,6 +241,15 @@ class GameManager {
         this.curStage = nextStage;
         this.setupStage();
         this.setStatus(STATUS.ready);
+        if (!isSuccessful) {
+          this.trials++;
+          if (this.trials > TOTAL_LIVES) {
+            this.sounds['theEnd'].play();
+            this.buttonImg = this.buttons['gameover'];
+            this.setStatus(STATUS.theEnd);
+            this.setGameSummaryStartingPoint();
+          }
+        }
       } else {
         this.sounds['allClear'].play();
         this.buttonImg = this.buttons['congratulations'];
@@ -231,10 +262,10 @@ class GameManager {
   update(source, ...args) {
     if (source.includes('gameover') && this.getStatus() != STATUS.gameover) {
       this.setStatus(STATUS.gameover);
+      this.buttonImg = this.buttons['retryButton'];
 
       this.sounds['titleTheme'].stop();
       this.sounds['gameOver'].play();
-      this.buttonImg = this.buttons['retryButton'];
 
       this.animateEndingMotion(false);
     } else if (
