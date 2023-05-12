@@ -20,7 +20,7 @@ export const ENDCIRCLE_SIZE = 1400;
 export const ENDCIRCLE_SIZE_STEP = 50;
 export const ENDCIRCLE_WEIGHT = 1200;
 export const SUCCESS_INTERVAL = 25;
-export const FAILURE_INTERVAL = 45;
+export const FAILURE_INTERVAL = 40;
 export const SUCCESS_TIMEOUT = 2000;
 export const FAILURE_TIMEOUT = 3000;
 

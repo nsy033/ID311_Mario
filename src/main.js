@@ -35,6 +35,7 @@ let gameManager;
 let map = [];
 let tiles = [];
 let directions = [];
+let startPos = [];
 let mario;
 
 function preload() {
@@ -54,13 +55,14 @@ function setup() {
 
   gameManager = GameManager.getInstance(sounds);
 
-  map = MapFactory.getInstance().getTiles(1);
-  directions = MapFactory.getInstance().getDirections(1);
+  map = MapFactory.getInstance().getTiles(2);
+  directions = MapFactory.getInstance().getDirections(2);
+  startPos = MapFactory.getInstance().getStartPositions(2);
   imageMode(CENTER);
   angleMode(DEGREES);
 
   mario = Mario.getInstance();
-  mario.setPosition(4, 4, 2, 1);
+  mario.setPosition(...startPos);
 
   const fires = [];
 
@@ -135,7 +137,13 @@ function draw() {
   const gameStatus = gameManager.getStatus();
   clear();
 
-  image(images['background'], CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+  image(
+    images['background'],
+    CANVAS_WIDTH / 2,
+    CANVAS_HEIGHT / 2,
+    CANVAS_WIDTH,
+    CANVAS_HEIGHT
+  );
   drawMap();
   mario.draw();
   drawPipe();
