@@ -47,12 +47,29 @@ class Pipe extends Subject {
   }
 
   draw() {
-    for (let variant = 0; variant < 5; variant++) {
-      const [x, y] = ij2xy(
-        this.i + this.dy[variant],
-        this.j + this.dx[variant]
-      );
-      image(this.pipes[variant], x, y, TILE_SIZE, TILE_SIZE);
+    if (this.dir == 0) {
+      for (let variant = 0; variant < 5; variant++) {
+        const [x, y] = ij2xy(
+          this.i + this.dy[variant],
+          this.j + this.dx[variant]
+        );
+        image(this.pipes[variant], x, y, TILE_SIZE, TILE_SIZE);
+      }
+    } else {
+      for (let variant = 0; variant < 5; variant++) {
+        const [x, y] = ij2xy(
+          this.i + this.dy[variant],
+          this.j + this.dx[variant]
+        );
+        translate(x, y);
+        scale(-1, 1);
+
+        if (variant % 2 == 1)
+          image(this.pipes[(variant + 2) % 4], 0, 0, TILE_SIZE, TILE_SIZE);
+        else image(this.pipes[variant], 0, 0, TILE_SIZE, TILE_SIZE);
+
+        resetMatrix();
+      }
     }
   }
 
