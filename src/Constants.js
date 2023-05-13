@@ -22,7 +22,7 @@ export const ENDCIRCLE_INTERVAL = 25;
 export const ENDCIRCLE_TIMEOUT = 2000;
 export const TIMEBUFFER = 500;
 
-export const TOTAL_STAGES = 3;
+export const TOTAL_STAGES = 4;
 export const TOTAL_LIVES = 5;
 
 export const CELL_TYPES = {

@@ -8,6 +8,7 @@ import center from '../data/images/pipe-center.png';
 import { Subject } from './Subject';
 import { TILE_SIZE, DIRECTION, PIPE_MARGIN } from './Constants';
 import { calcCoordinates, collisionTest, ij2xy } from './utilities';
+import { Mario } from './Mario';
 
 class Pipe extends Subject {
   constructor(i, j, dir) {
@@ -75,25 +76,23 @@ class Pipe extends Subject {
 
   update(source, ...args) {
     if (source == 'mario-wants-to-move') {
-      for (let variant = 0; variant < 4; variant++) {
-        if (collisionTest(this.coordinates[variant], args[0])) {
-          this.notifySubscribers('gravity-direction-changes', {
-            direction: variant,
-            center: [this.i, this.j],
-            clockwise: this.dir,
-          });
-          break;
-        }
-      }
+      //   for (let variant = 0; variant < 4; variant++) {
+      //     if (collisionTest(this.coordinates[variant], args[0])) {
+      //       this.notifySubscribers('gravity-direction-changes-moving', {
+      //         direction: variant,
+      //         center: [this.i, this.j],
+      //         clockwise: this.dir,
+      //       });
+      //     }
+      //   }
     } else if (source == 'mario-follows-gravity') {
       for (let variant = 0; variant < 4; variant++) {
         if (collisionTest(this.coordinates[variant], args[0])) {
-          this.notifySubscribers('gravity-direction-changes', {
+          this.notifySubscribers('gravity-direction-changes-floating', {
             direction: variant,
             center: [this.i, this.j],
             clockwise: this.dir,
           });
-          break;
         }
       }
     } else if (source == 'fire-wants-to-move') {

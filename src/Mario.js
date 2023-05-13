@@ -28,6 +28,7 @@ class Mario extends Subject {
 
     this.img2display = 1;
     this.gravityCache = new Set();
+    this.inPipe = false;
 
     this.dir = DIRECTION.down;
   }
@@ -110,6 +111,7 @@ class Mario extends Subject {
   receiveGravity() {
     this.gravityCache.clear();
     this.img2display = 0;
+    this.inPipe = false;
 
     if (this.dir == DIRECTION.down) this.y += GRAVITY_STEP;
     else if (this.dir == DIRECTION.up) this.y -= GRAVITY_STEP;
@@ -126,6 +128,13 @@ class Mario extends Subject {
 
   beStable() {
     this.img2display = 1;
+  }
+
+  setInPipe(inPipe) {
+    this.inPipe = inPipe;
+  }
+  getInPipe() {
+    return this.inPipe;
   }
 
   update(source, ...args) {
@@ -167,6 +176,7 @@ class Mario extends Subject {
 
           this.coordinates = calcCoordinates(x, y, true, this.dir);
         }
+        this.inPipe = true;
       }
     }
   }
