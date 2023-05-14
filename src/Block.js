@@ -11,7 +11,7 @@ class Block extends Subject {
 
     const [x, y] = ij2xy(this.i, this.j);
     // coordinates of four corners of itself as a rectangle in the canvas
-    this.coordinates = calcCoordinates(x, y, false);
+    this.coordinates = calcCoordinates(x, y, 'block');
   }
 
   update(source, ...args) {
@@ -39,7 +39,7 @@ class Grass extends Subject {
 
     const [x, y] = ij2xy(this.i, this.j);
     // coordinates of four corners of itself as a rectangle in the canvas
-    this.coordinates = calcCoordinates(x, y, false);
+    this.coordinates = calcCoordinates(x, y, 'grass');
   }
 
   update(source, ...args) {

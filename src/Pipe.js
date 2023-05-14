@@ -4,7 +4,7 @@ import left from '../data/images/pipe-left.png';
 import right from '../data/images/pipe-right.png';
 import center from '../data/images/pipe-center.png';
 
-import { TILE_SIZE, DIRECTION, PIPE_MARGIN } from './Constants';
+import { TILE_SIZE, DIRECTION } from './Constants';
 import { Subject } from './Subject';
 import { calcCoordinates, collisionTest, ij2xy } from './utilities';
 
@@ -32,21 +32,7 @@ class Pipe extends Subject {
         this.i + this.dy[variant],
         this.j + this.dx[variant]
       );
-      this.coordinates[variant] = calcCoordinates(x, y, false);
-
-      if (variant == DIRECTION.up) {
-        this.coordinates[variant].upperLeft.y += PIPE_MARGIN;
-        this.coordinates[variant].upperRight.y += PIPE_MARGIN;
-      } else if (variant == DIRECTION.left) {
-        this.coordinates[variant].upperLeft.x += PIPE_MARGIN;
-        this.coordinates[variant].lowerLeft.x += PIPE_MARGIN;
-      } else if (variant == DIRECTION.down) {
-        this.coordinates[variant].lowerLeft.y -= PIPE_MARGIN;
-        this.coordinates[variant].lowerRight.y -= PIPE_MARGIN;
-      } else if (variant == DIRECTION.right) {
-        this.coordinates[variant].upperRight.x -= PIPE_MARGIN;
-        this.coordinates[variant].lowerRight.x -= PIPE_MARGIN;
-      }
+      this.coordinates[variant] = calcCoordinates(x, y, 'pipe', variant);
     }
   }
 
@@ -85,18 +71,74 @@ class Pipe extends Subject {
   update(source, ...args) {
     // detect collision, and notify the cause provider that the collision happens with whom
     // as this is pipes, ...
-    if (source == 'mario-follows-gravity') {
-      /*
+    /*
         i. if it collides with Mario, then it notifies that
-           the gravitational direction is changed into `this.dir` way
+           the gravitational direction may be changed into `this.dir` way
       */
+    if (source == 'mario-wants-to-move') {
+      const marioCoord = args[0],
+        marioDir = args[1];
       for (let variant = 0; variant < 4; variant++) {
-        if (collisionTest(this.coordinates[variant], args[0])) {
-          this.notifySubscribers('gravity-direction-changes-floating', {
-            direction: variant,
-            center: [this.i, this.j],
-            clockwise: this.dir,
-          });
+        if (collisionTest(this.coordinates[variant], marioCoord)) {
+          // check whether this collision is of the correct entrance of the pipe
+          let marioGoIntoPipe = false;
+          if (variant != marioDir && variant % 2 == marioDir % 2) {
+            switch (marioDir) {
+              case DIRECTION.up:
+                if (
+                  this.coordinates[variant].lowerLeft.y ==
+                  marioCoord.lowerLeft.y
+                )
+                  marioGoIntoPipe = true;
+                break;
+              case DIRECTION.down:
+                if (
+                  this.coordinates[variant].upperLeft.y ==
+                  marioCoord.lowerLeft.y
+                )
+                  marioGoIntoPipe = true;
+                break;
+              case DIRECTION.left:
+                if (
+                  this.coordinates[variant].lowerRight.x ==
+                  marioCoord.lowerLeft.x
+                )
+                  marioGoIntoPipe = true;
+                break;
+              case DIRECTION.right:
+                if (
+                  this.coordinates[variant].lowerLeft.x ==
+                  marioCoord.lowerLeft.x
+                )
+                  marioGoIntoPipe = true;
+                break;
+            }
+          }
+          if (marioGoIntoPipe)
+            this.notifySubscribers('gravity-direction-changes-moving', {
+              direction: variant,
+              center: [this.i, this.j],
+              clockwise: this.dir,
+            });
+          else
+            this.notifySubscribers('pipe-collides', this.coordinates, variant);
+        }
+      }
+    } else if (source == 'mario-follows-gravity') {
+      const marioCoord = args[0],
+        marioDir = args[1];
+      for (let variant = 0; variant < 4; variant++) {
+        if (collisionTest(this.coordinates[variant], marioCoord)) {
+          // check whether this collision is of the correct entrance of the pipe
+          if (variant != marioDir && variant % 2 == marioDir % 2) {
+            this.notifySubscribers('gravity-direction-changes-floating', {
+              direction: variant,
+              center: [this.i, this.j],
+              clockwise: this.dir,
+            });
+          } else {
+            this.notifySubscribers('pipe-holds', this.coordinates, variant);
+          }
         }
       }
     } else if (source == 'fire-wants-to-move') {

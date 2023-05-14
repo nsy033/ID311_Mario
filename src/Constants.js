@@ -11,8 +11,11 @@ export const MARIO_STEP = 8;
 export const MARIO_MARGIN_LR = 10;
 export const MARIO_MARGIN_TOP = 5;
 export const FIRE_STEP = 2;
-export const THORN_MARGIN = 10;
-export const PIPE_MARGIN = 12;
+export const FIRE_MARGIN = 10;
+export const THORN_MARGIN = 15;
+export const PIPE_MARGIN_LR = 5;
+export const PIPE_MARGIN_TOP = 20;
+export const STAR_MARGIN = 20;
 export const TIME_INTERVAL = 50;
 
 export const ENDCIRCLE_SIZE = 1400;

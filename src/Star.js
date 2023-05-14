@@ -11,7 +11,7 @@ class Star extends Subject {
 
     const [x, y] = ij2xy(this.i, this.j);
     // coordinates of four corners of itself as a rectangle in the canvas
-    this.coordinates = calcCoordinates(x, y, false);
+    this.coordinates = calcCoordinates(x, y, 'star');
   }
 
   update(source, ...args) {
@@ -40,7 +40,7 @@ class StarBlock extends Subject {
 
     const [x, y] = ij2xy(this.i, this.j);
     // coordinates of four corners of itself as a rectangle in the canvas
-    this.coordinates = calcCoordinates(x, y, false);
+    this.coordinates = calcCoordinates(x, y, 'starblock');
   }
 
   update(source, ...args) {

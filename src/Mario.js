@@ -47,7 +47,7 @@ class Mario extends Subject {
     this.y = y;
     this.dir = dir;
     this.face = face; // whether he is facing left or right
-    this.coordinates = calcCoordinates(x, y, true, this.dir);
+    this.coordinates = calcCoordinates(x, y, 'mario', this.dir);
   }
   getPosition() {
     return { x: this.x, y: this.y, dir: this.dir, face: this.face };
@@ -106,8 +106,8 @@ class Mario extends Subject {
 
     // update the coordinates of four corners according the the moving
     // and notify its move result, in order to check collision
-    this.coordinates = calcCoordinates(this.x, this.y, true, this.dir);
-    this.notifySubscribers('mario-wants-to-move', this.coordinates);
+    this.coordinates = calcCoordinates(this.x, this.y, 'mario', this.dir);
+    this.notifySubscribers('mario-wants-to-move', this.coordinates, this.dir);
 
     // no need to keep changing his displaying images anymore, if it is in a gameover state
     if (GameManager.getInstance().getStatus() != STATUS.alive) return;
@@ -130,8 +130,8 @@ class Mario extends Subject {
 
     // update the coordinates of four corners according the the moving
     // and notify its move result, in order to check collision
-    this.coordinates = calcCoordinates(this.x, this.y, true, this.dir);
-    this.notifySubscribers('mario-follows-gravity', this.coordinates);
+    this.coordinates = calcCoordinates(this.x, this.y, 'mario', this.dir);
+    this.notifySubscribers('mario-follows-gravity', this.coordinates, this.dir);
   }
 
   standOnSth() {
@@ -153,11 +153,21 @@ class Mario extends Subject {
       if (source.includes('collides')) {
         // if someone said that his movement will collide with it,
         // Mario go back to his original position
+        if (source.includes('pipe') && this.dir == args[1]) {
+          this.inPipe = true;
+          return;
+        }
+
         if (this.dir % 2 == 0) this.x -= MARIO_STEP * this.face;
         else this.y -= MARIO_STEP * this.face;
-        this.coordinates = calcCoordinates(this.x, this.y, true, this.dir);
+        this.coordinates = calcCoordinates(this.x, this.y, 'mario', this.dir);
       } else if (source.includes('holds')) {
         // if someone said that he does not move more because of gravity,
+        if (source.includes('pipe') && this.dir == args[1]) {
+          this.inPipe = true;
+          return;
+        }
+
         const [i, j] = xy2ij(this.x, this.y);
 
         // display a proper image, not floating
@@ -172,30 +182,27 @@ class Mario extends Subject {
           else if (this.dir == DIRECTION.up) this.y += GRAVITY_STEP;
           else if (this.dir == DIRECTION.left) this.x += GRAVITY_STEP;
           else if (this.dir == DIRECTION.right) this.x -= GRAVITY_STEP;
-          this.coordinates = calcCoordinates(this.x, this.y, true, this.dir);
+          this.coordinates = calcCoordinates(this.x, this.y, 'mario', this.dir);
         }
       } else if (source.includes('gravity-direction-changes')) {
         // if someone said that he collides with it,
         const { direction, center, clockwise } = args[0];
 
-        // check whether this collision is of the correct entrance of the pipe
-        if (direction != this.dir && direction % 2 == this.dir % 2) {
-          // if Mario went into the correct entrance of the pipe
+        // if Mario went into the correct entrance of the pipe
 
-          // play the pipe-passing sound
-          this.pipe_sound.play();
+        // play the pipe-passing sound
+        this.pipe_sound.play();
 
-          // change the gravitational direction 90 deg
-          if (clockwise == 0) this.dir = this.dir == 0 ? 3 : this.dir - 1;
-          else this.dir = this.dir == 3 ? 0 : this.dir + 1;
+        // change the gravitational direction 90 deg
+        if (clockwise == 0) this.dir = this.dir == 0 ? 3 : this.dir - 1;
+        else this.dir = this.dir == 3 ? 0 : this.dir + 1;
 
-          // move (from the entrance) to the very center of the pipes
-          const [i, j] = center;
-          const [x, y] = ij2xy(i, j);
-          this.x = x;
-          this.y = y;
-          this.coordinates = calcCoordinates(x, y, true, this.dir);
-        }
+        // move (from the entrance) to the very center of the pipes
+        const [i, j] = center;
+        const [x, y] = ij2xy(i, j);
+        this.x = x;
+        this.y = y;
+        this.coordinates = calcCoordinates(x, y, 'mario', this.dir);
         this.inPipe = true;
       }
     }

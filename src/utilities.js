@@ -4,6 +4,11 @@ import {
   MARIO_MARGIN_LR,
   MARIO_MARGIN_TOP,
   DIRECTION,
+  FIRE_MARGIN,
+  THORN_MARGIN,
+  PIPE_MARGIN_LR,
+  PIPE_MARGIN_TOP,
+  STAR_MARGIN,
 } from './Constants';
 
 export const ij2xy = (i, j) => {
@@ -49,7 +54,7 @@ export const collisionTest = (coord1, coord2) => {
 
   return false;
 };
-export const calcCoordinates = (x, y, isMario, dir) => {
+export const calcCoordinates = (x, y, type, dir) => {
   const coordinates = {};
   /* coordinates has structure of
     {
@@ -79,12 +84,11 @@ export const calcCoordinates = (x, y, isMario, dir) => {
   };
 
   /*
-    if the target object to calculate coordinate is mario,
-    as it has empty space in PNG file,
+    if the target object has empty space in PNG file,
     it should be specified that certain areas are empty
     which differ according to the gravitational direction
   */
-  if (isMario) {
+  if (type === 'mario') {
     if (dir % 2 == DIRECTION.up) {
       coordinates.upperLeft.x += MARIO_MARGIN_LR;
       coordinates.lowerLeft.x += MARIO_MARGIN_LR;
@@ -115,6 +119,69 @@ export const calcCoordinates = (x, y, isMario, dir) => {
         coordinates.lowerLeft.x += MARIO_MARGIN_TOP;
       }
     }
+  } else if (type === 'fire') {
+    if (dir % 2 == DIRECTION.up) {
+      coordinates.upperLeft.x += FIRE_MARGIN;
+      coordinates.lowerLeft.x += FIRE_MARGIN;
+      coordinates.upperRight.x -= FIRE_MARGIN;
+      coordinates.lowerRight.x -= FIRE_MARGIN;
+    } else if (dir % 2 == DIRECTION.left) {
+      coordinates.upperLeft.y += FIRE_MARGIN;
+      coordinates.upperRight.y += FIRE_MARGIN;
+      coordinates.lowerLeft.y -= FIRE_MARGIN;
+      coordinates.lowerRight.y -= FIRE_MARGIN;
+    }
+  } else if (type === 'thorn') {
+    if (dir == DIRECTION.up) {
+      coordinates.upperLeft.y += THORN_MARGIN;
+      coordinates.upperRight.y += THORN_MARGIN;
+    } else if (dir == DIRECTION.left) {
+      coordinates.upperLeft.x += THORN_MARGIN;
+      coordinates.lowerLeft.x += THORN_MARGIN;
+    } else if (dir == DIRECTION.down) {
+      coordinates.lowerLeft.y -= THORN_MARGIN;
+      coordinates.lowerRight.y -= THORN_MARGIN;
+    } else if (dir == DIRECTION.right) {
+      coordinates.upperRight.x -= THORN_MARGIN;
+      coordinates.lowerRight.x -= THORN_MARGIN;
+    }
+  } else if (type === 'pipe' && dir < 4) {
+    if (dir % 2 == DIRECTION.up) {
+      coordinates.upperLeft.x += PIPE_MARGIN_LR;
+      coordinates.upperRight.x -= PIPE_MARGIN_LR;
+      coordinates.lowerLeft.x += PIPE_MARGIN_LR;
+      coordinates.lowerRight.x -= PIPE_MARGIN_LR;
+      if (dir == DIRECTION.up) {
+        coordinates.upperLeft.y += PIPE_MARGIN_TOP;
+        coordinates.upperRight.y += PIPE_MARGIN_TOP;
+      } else {
+        // dir == DIRECTION.down
+        coordinates.lowerLeft.y -= PIPE_MARGIN_TOP;
+        coordinates.lowerRight.y -= PIPE_MARGIN_TOP;
+      }
+    } else if (dir % 2 == DIRECTION.left) {
+      coordinates.upperLeft.y += PIPE_MARGIN_LR;
+      coordinates.lowerLeft.y -= PIPE_MARGIN_LR;
+      coordinates.upperRight.y += PIPE_MARGIN_LR;
+      coordinates.lowerRight.y -= PIPE_MARGIN_LR;
+      if (dir == DIRECTION.left) {
+        coordinates.upperLeft.x += PIPE_MARGIN_TOP;
+        coordinates.lowerLeft.x += PIPE_MARGIN_TOP;
+      } else {
+        // dir == DIRECTION.right
+        coordinates.upperRight.x -= PIPE_MARGIN_TOP;
+        coordinates.lowerRight.x -= PIPE_MARGIN_TOP;
+      }
+    }
+  } else if (type === 'star') {
+    coordinates.upperLeft.x += STAR_MARGIN;
+    coordinates.lowerLeft.x += STAR_MARGIN;
+    coordinates.upperRight.x -= STAR_MARGIN;
+    coordinates.lowerRight.x -= STAR_MARGIN;
+    coordinates.upperLeft.y += STAR_MARGIN;
+    coordinates.upperRight.y += STAR_MARGIN;
+    coordinates.lowerLeft.y -= STAR_MARGIN;
+    coordinates.lowerRight.y -= STAR_MARGIN;
   }
   return coordinates;
 };
