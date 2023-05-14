@@ -1,18 +1,21 @@
-// Assets
 import up from '../data/images/pipe-up.png';
 import down from '../data/images/pipe-down.png';
 import left from '../data/images/pipe-left.png';
 import right from '../data/images/pipe-right.png';
 import center from '../data/images/pipe-center.png';
 
-import { Subject } from './Subject';
 import { TILE_SIZE, DIRECTION, PIPE_MARGIN } from './Constants';
+import { Subject } from './Subject';
 import { calcCoordinates, collisionTest, ij2xy } from './utilities';
-import { Mario } from './Mario';
 
 class Pipe extends Subject {
   constructor(i, j, dir) {
     super(i, j, dir);
+    /*
+      In the case of pipes, only [i][j] corresponding to the center is externally specified
+      and the image and coordinate of the top, bottom, left, and right sides
+      are calculated and used only internally
+    */
 
     this.dx = [-1, 0, 1, 0, 0];
     this.dy = [0, -1, 0, 1, 0];
@@ -48,7 +51,10 @@ class Pipe extends Subject {
   }
 
   draw() {
+    // Within one object, draw all the images corresponding to each of the center, top, bottom, left, and right parts
+    // Depending on whether it rotates Mario clockwise or counterclockwise, draw the overall picture in reverse
     if (this.dir == 0) {
+      // clockwise case
       for (let variant = 0; variant < 5; variant++) {
         const [x, y] = ij2xy(
           this.i + this.dy[variant],
@@ -57,35 +63,33 @@ class Pipe extends Subject {
         image(this.pipes[variant], x, y, TILE_SIZE, TILE_SIZE);
       }
     } else {
+      // counterclockwise case
       for (let variant = 0; variant < 5; variant++) {
         const [x, y] = ij2xy(
           this.i + this.dy[variant],
           this.j + this.dx[variant]
         );
+
+        // make the canvas in reverse horizontally
         translate(x, y);
         scale(-1, 1);
 
         if (variant % 2 == 1)
           image(this.pipes[(variant + 2) % 4], 0, 0, TILE_SIZE, TILE_SIZE);
         else image(this.pipes[variant], 0, 0, TILE_SIZE, TILE_SIZE);
-
         resetMatrix();
       }
     }
   }
 
   update(source, ...args) {
-    if (source == 'mario-wants-to-move') {
-      //   for (let variant = 0; variant < 4; variant++) {
-      //     if (collisionTest(this.coordinates[variant], args[0])) {
-      //       this.notifySubscribers('gravity-direction-changes-moving', {
-      //         direction: variant,
-      //         center: [this.i, this.j],
-      //         clockwise: this.dir,
-      //       });
-      //     }
-      //   }
-    } else if (source == 'mario-follows-gravity') {
+    // detect collision, and notify the cause provider that the collision happens with whom
+    // as this is pipes, ...
+    if (source == 'mario-follows-gravity') {
+      /*
+        i. if it collides with Mario, then it notifies that
+           the gravitational direction is changed into `this.dir` way
+      */
       for (let variant = 0; variant < 4; variant++) {
         if (collisionTest(this.coordinates[variant], args[0])) {
           this.notifySubscribers('gravity-direction-changes-floating', {
@@ -96,6 +100,10 @@ class Pipe extends Subject {
         }
       }
     } else if (source == 'fire-wants-to-move') {
+      /*
+        ii. if it collides with Fire, then it just notifies that
+            this way is blocked because of pipe so that you should do U-turn
+      */
       for (let variant = 0; variant < 5; variant++) {
         if (collisionTest(this.coordinates[variant], args[0])) {
           this.notifySubscribers('pipe-change-fire-dir', args[1], args[2]);

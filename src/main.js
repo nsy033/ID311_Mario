@@ -1,4 +1,3 @@
-//Assets
 import background from '../data/images/background.png';
 import titleTheme from '../data/sounds/TitleTheme.mp3';
 import itsMeMario from '../data/sounds/ItsMeMario.mp3';
@@ -19,10 +18,6 @@ import {
   TILE_H_COUNT,
   TIME_INTERVAL,
   STATUS,
-  TOTAL_STAGES,
-  TILE_SIZE,
-  HALF_TILE_SIZE,
-  TOTAL_LIVES,
 } from './Constants.js';
 import { Mario } from '../src/Mario.js';
 import { GameManager } from './GameManager.js';
@@ -59,22 +54,24 @@ function setup() {
   [map, tiles] = gameManager.getStageSetup();
 
   setInterval(() => {
+    // receive keyboard input and force the gravity, repeatedly
     keyPressed();
-    gravityOperates();
+    if (gameManager.getStatus() == STATUS.alive) mario.receiveGravity();
   }, TIME_INTERVAL);
 }
 
 function drawMap() {
+  // draw the environmental objects
   for (let j = 0; j < TILE_H_COUNT; j++) {
     for (let i = 0; i < TILE_W_COUNT; i++) {
       if (typeof tiles[j][i] != 'object') continue;
-
       tiles[j][i].draw();
     }
   }
 }
 
 function drawPipe() {
+  // draw pipe again, since its z-index has to be at the top
   for (let j = 0; j < TILE_H_COUNT; j++) {
     for (let i = 0; i < TILE_W_COUNT; i++) {
       if (map[j][i] == 7) tiles[j][i].draw();
@@ -85,6 +82,7 @@ function drawPipe() {
 function draw() {
   clear();
 
+  // draw background image
   image(
     images['background'],
     CANVAS_WIDTH / 2,
@@ -92,19 +90,25 @@ function draw() {
     CANVAS_WIDTH,
     CANVAS_HEIGHT
   );
+
+  // draw basic objects in map
+  [map, tiles] = gameManager.getStageSetup();
   drawMap();
   mario.draw();
   drawPipe();
 
+  // draw current game status info
   const gameStatus = gameManager.getStatus();
-  [map, tiles] = gameManager.getStageSetup();
   gameManager.drawStageInfo();
 
   if (gameStatus == STATUS.ready) {
+    // if it is before starting the game
+    // draw translucent rectangle showing map behind
     fill('rgba(0, 0, 0, 0.5)');
     noStroke();
     rect(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, CANVAS_WIDTH, CANVAS_HEIGHT);
 
+    // draw button to actually start the game
     const btnImg = gameManager.getButton();
     const btnRatio = btnImg.width / btnImg.height;
     image(
@@ -115,75 +119,21 @@ function draw() {
       BTN_HEIGHT
     );
   } else if (gameStatus == STATUS.gameover) {
+    // if the stage is failed
     gameManager.drawEnding(mario.getPosition());
     gameManager.drawStageInfo();
   } else if (gameStatus == STATUS.succeed) {
+    // if the stage is cleared
     gameManager.drawEnding(mario.getPosition());
     gameManager.drawStageInfo();
   } else if (gameStatus == STATUS.allCleared || gameStatus == STATUS.theEnd) {
-    const yStartingPoint = gameManager.getGameSummaryStartingPoint();
-
-    fill(0);
-    noStroke();
-    rect(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-    const btnImg = gameManager.getButton();
-    const btnRatio = btnImg.width / btnImg.height;
-    const jitter = { x: random(-1, 1), y: random(-1, 1) };
-    image(
-      btnImg,
-      CANVAS_WIDTH / 2 + jitter.x,
-      CANVAS_HEIGHT / 2 + jitter.y - TILE_SIZE * 1.5 + yStartingPoint,
-      Math.floor(BTN_HEIGHT * btnRatio),
-      BTN_HEIGHT
-    );
-
-    fill(255);
-    noStroke();
-
-    textAlign(LEFT, TOP);
-    text(
-      `UPTO STAGE\t ${gameManager.getCurStage()} / ${TOTAL_STAGES}`,
-      CANVAS_WIDTH / 2.75,
-      CANVAS_HEIGHT / 2 + HALF_TILE_SIZE + yStartingPoint
-    );
-
-    text(
-      `TRIAL\t ${
-        gameManager.getTrials() - Number(gameStatus == STATUS.theEnd)
-      }`,
-      CANVAS_WIDTH / 2.75,
-      CANVAS_HEIGHT / 2 + TILE_SIZE * 1.5 + yStartingPoint
-    );
-
-    text(
-      `LIFE`,
-      CANVAS_WIDTH / 2.75,
-      CANVAS_HEIGHT / 2 + TILE_SIZE * 2.5 + yStartingPoint
-    );
-    const heartOnCnt = Math.min(
-      TOTAL_LIVES - gameManager.getTrials() + 1,
-      TOTAL_LIVES
-    );
-    for (let i = 1; i <= TOTAL_LIVES; i++) {
-      image(
-        i <= heartOnCnt ? gameManager.hearts['on'] : gameManager.hearts['off'],
-        CANVAS_WIDTH / 2.3 + TILE_SIZE * i * 0.75,
-        CANVAS_HEIGHT / 2 + TILE_SIZE * 2.75 + yStartingPoint,
-        TILE_SIZE,
-        TILE_SIZE
-      );
-    }
-  }
-}
-function gravityOperates() {
-  const gameStatus = gameManager.getStatus();
-  if (gameStatus == STATUS.alive) {
-    mario.receiveGravity();
+    // if all the stages are cleared or all the lives are consumed
+    gameManager.drawEndingCredits();
   }
 }
 
 function mousePressed() {
+  // recognize mouse clicking event as button clicking
   const btnImg = gameManager.getButton();
   const btnRatio = btnImg.width / btnImg.height;
   const BTN_WIDTH = Math.floor(BTN_HEIGHT * btnRatio);
@@ -194,6 +144,7 @@ function mousePressed() {
     CANVAS_HEIGHT / 2 - BTN_HEIGHT / 2 <= mouseY &&
     mouseY <= CANVAS_HEIGHT / 2 + BTN_HEIGHT / 2
   ) {
+    // if the clicking position was correctly inside of button area
     if (gameManager.gameStart) {
       sounds['itsMeMario'].play();
       gameManager.gameStart = false;
@@ -206,6 +157,7 @@ function mousePressed() {
 }
 
 function keyPressed() {
+  // recognize key pressing event as moving with direction keys
   const gameStatus = gameManager.getStatus();
   const marioIsInPipe = mario.getInPipe();
   if (gameStatus == STATUS.alive && !marioIsInPipe) {
@@ -220,13 +172,16 @@ function keyPressed() {
 }
 
 function keyReleased(e) {
+  // recognize key releasing event only for spacebar ...
   const gameStatus = gameManager.getStatus();
   if (e.keyCode == 32) {
     if (gameStatus == STATUS.alive && mario.standOnSth()) {
+      // i. as Mario changing his gravitational direction
       sounds['jumpSound'].play();
       const curGravity = mario.getDirection(0);
       mario.setDirection((curGravity + 2) % 4);
     } else if (gameStatus == STATUS.ready) {
+      // ii. as starting each stage from the ready state (the same as clicking the button)
       if (gameManager.gameStart) {
         sounds['itsMeMario'].play();
         gameManager.gameStart = false;

@@ -23,8 +23,8 @@ import {
   TILE_SIZE,
   CANVAS_HEIGHT,
   TOTAL_LIVES,
+  BTN_HEIGHT,
 } from './Constants';
-
 import { Block, Grass } from '../src/Block';
 import { Star, StarBlock } from '../src/Star';
 import { Fire, Thorn } from '../src/Obstacle.js';
@@ -33,7 +33,12 @@ import { Mario } from '../src/Mario.js';
 import { MapFactory } from '../src/Map.js';
 
 class GameManager {
+  // GameManager who controls overall game progress
+  // ; drawing buttons, playing sounds, managing states, ...
+
   constructor(sounds) {
+    this.sounds = sounds;
+
     this.buttons = {};
     this.buttons['startgameButton'] = loadImage(startgameButton);
     this.buttons['retryButton'] = loadImage(retryButton);
@@ -46,42 +51,50 @@ class GameManager {
     this.hearts['on'] = loadImage(heartOn);
     this.hearts['off'] = loadImage(heartOff);
 
-    this.sounds = sounds;
-
-    this.gameStart = true;
-    this.trials = 1;
+    this.gameStart = true; // to check whether this is the very beginning of this game
+    this.trials = 1; // how many trials the player have done
 
     this.gameoverCircle = {
       size: CANVAS_WIDTH * 3.5,
       weight: ENDCIRCLE_WEIGHT,
     };
 
-    this.status = STATUS.ready;
-    this.curStage = 1;
-    this.stageLoaded = false;
-    this.map = [];
-    this.tiles = [];
+    this.status = STATUS.ready; // game status
+    this.curStage = 1; // current stage
+    this.stageLoaded = false; // check whether the map is already been loaded
+    this.map = []; // already loaded map from MapFactory
+    this.tiles = []; // already loaded tiles from MapFactory
   }
 
   static getInstance(sounds) {
+    // Singleton pattern
     if (!this._instance) this._instance = new GameManager(sounds);
     return this._instance;
   }
 
   setupStage() {
-    const curStage = this.getCurStage();
+    // set up the current stage in the first time
+    const curStage = this.curStage;
+    const { map, directions, startPos } =
+      MapFactory.getInstance().createMap(curStage);
 
-    const map = MapFactory.getInstance().getTiles(curStage);
-    const directions = MapFactory.getInstance().getDirections(curStage);
-    const startPos = MapFactory.getInstance().getStartPositions(curStage);
-
+    // initialize mario's state
     const mario = Mario.getInstance();
     mario.setPosition(...startPos);
     mario.unsubscribeAll();
     mario.beStable();
 
+    // create each corresponding object in each tile
     const tiles = [];
     const fires = [];
+
+    /*
+      Subject-Observer pattern
+      (ii. and iii., iv. and v. for messaging with each other)
+      i. gameManager(this) observes each environmental object
+      ii. each environmental object observes Mario
+      iii. Mario observes each environmental object
+    */
     for (let j = 0; j < TILE_H_COUNT; j++) {
       tiles.push(new Array(TILE_W_COUNT));
       for (let i = 0; i < TILE_W_COUNT; i++) {
@@ -113,6 +126,11 @@ class GameManager {
       }
     }
 
+    /*
+      Subject-Observer pattern
+      iv. each environmental object observes fire
+      v. fire observes each environmental object
+    */
     for (let j = 0; j < TILE_H_COUNT; j++) {
       for (let i = 0; i < TILE_W_COUNT; i++) {
         if (typeof tiles[j][i] != 'object') continue;
@@ -125,6 +143,7 @@ class GameManager {
       }
     }
 
+    // store this stage's cache
     this.stageLoaded = true;
     this.map = map;
     this.tiles = tiles;
@@ -133,35 +152,29 @@ class GameManager {
   }
 
   getStatus() {
+    // return current game status; gameover, ready, succeed, ...
     return this.status;
   }
-  setStatus(status) {
-    this.status = status;
-  }
-  getTrials() {
-    return this.trials;
-  }
-
-  getCurStage() {
-    return this.curStage;
-  }
   getStageSetup() {
+    // if the stage is already loaded before, just return the cached map and tiles
+    // else setup the stage newly, and return the results
     if (this.stageLoaded) return [this.map, this.tiles];
     else return this.setupStage();
   }
-
   getStarted() {
     if (this.getStatus() != STATUS.alive) {
-      this.setStatus(STATUS.alive);
+      // update the game status as alive and play the titleTheme sound
+      this.status = STATUS.alive;
       this.sounds['titleTheme'].loop();
     }
   }
-
   getButton() {
+    // return which button to display; gameStart, continue, retry, ...
     return this.buttonImg;
   }
 
   drawStageInfo() {
+    // draw basic stage info at the top of the screen
     textFont('Silkscreen');
     textSize(25);
     textAlign(CENTER, TOP);
@@ -169,6 +182,7 @@ class GameManager {
     fill(255);
     noStroke();
 
+    // about how many lives are left, out of total
     text(`LIFE`, TILE_SIZE * 1.2, HALF_TILE_SIZE);
     const heartOnCnt = Math.min(TOTAL_LIVES - this.trials + 1, TOTAL_LIVES);
     for (let i = 1; i <= TOTAL_LIVES; i++) {
@@ -181,35 +195,27 @@ class GameManager {
       );
     }
 
+    // about which stage is the player in, out of total
     text(
       `STAGE\t${this.curStage} / ${TOTAL_STAGES}`,
       CANVAS_WIDTH / 2,
       HALF_TILE_SIZE
     );
 
+    // about how many trials the player has done
     text(`TRIAL\t${this.trials}`, CANVAS_WIDTH - TILE_SIZE * 2, HALF_TILE_SIZE);
   }
 
-  getGameSummaryStartingPoint() {
-    return this.yStartingPoint;
-  }
-  setGameSummaryStartingPoint() {
-    this.yStartingPoint = CANVAS_HEIGHT / 1.5;
-
-    setInterval(() => {
-      if (this.yStartingPoint > 0) this.yStartingPoint--;
-    }, 10);
-  }
-
   drawEnding({ x, y }) {
+    // draw the masked circle focusing on Mario, when the stage ends
     noFill();
     stroke(0);
     strokeWeight(ENDCIRCLE_WEIGHT);
     ellipseMode(CENTER);
     ellipse(x, y, this.gameoverCircle.size, this.gameoverCircle.size);
   }
-
-  animateEndingMotion(isSuccessful) {
+  animateEndingMotion() {
+    // change the masked circles size according to time
     setTimeout(() => {
       this.gameoverInterval = setInterval(() => {
         this.gameoverCircle.size =
@@ -218,15 +224,28 @@ class GameManager {
             : ENDCIRCLE_SIZE;
       }, ENDCIRCLE_INTERVAL);
     }, ENDCIRCLE_TIMEOUT);
+  }
 
+  setGameSummaryStartingPoint() {
+    // set the top y coordinate of the ending credits according to time
+    this.yStartingPoint = CANVAS_HEIGHT / 1.5;
+
+    setInterval(() => {
+      if (this.yStartingPoint > 0) this.yStartingPoint--;
+    }, 10);
+  }
+
+  goNextStage(isSuccessful) {
+    // check which stage to go according to
+    // i. whether previous trial was successful and ii. which stage is the player in
     const nextStage = isSuccessful
       ? this.curStage == TOTAL_STAGES
         ? -1
         : this.curStage + 1
       : this.curStage;
+
     setTimeout(() => {
       this.stageLoaded = false;
-
       clearInterval(this.gameoverInterval);
       this.gameoverCircle = {
         size: CANVAS_WIDTH * 3.5,
@@ -234,46 +253,113 @@ class GameManager {
       };
 
       if (nextStage > 0) {
+        // if there is any stage remaininging to go
         this.curStage = nextStage;
         this.setupStage();
-        this.setStatus(STATUS.ready);
+        this.status = STATUS.ready;
+
+        // update total trials if the previous trial was not succeessful
         if (!isSuccessful) {
           this.trials++;
+          // if the trial count exceed the total lives given, it is gameover completely
           if (this.trials > TOTAL_LIVES) {
             this.sounds['theEnd'].play();
             this.buttonImg = this.buttons['gameover'];
-            this.setStatus(STATUS.theEnd);
+            this.status = STATUS.theEnd;
             this.setGameSummaryStartingPoint();
           }
         }
       } else {
+        // if there is no any stage remaininging to go, it is gameclear completely
         this.sounds['allClear'].play();
         this.buttonImg = this.buttons['congratulations'];
-        this.setStatus(STATUS.allCleared);
+        this.status = STATUS.allCleared;
         this.setGameSummaryStartingPoint();
       }
     }, ENDCIRCLE_TIMEOUT * 2 + TIMEBUFFER);
   }
 
+  drawEndingCredits() {
+    // black out the screen
+    fill(0);
+    noStroke();
+    rect(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+    // show message with jittering; gameover or congratulations
+    const btnImg = this.buttonImg;
+    const btnRatio = btnImg.width / btnImg.height;
+    const jitter = { x: random(-1, 1), y: random(-1, 1) };
+    image(
+      btnImg,
+      CANVAS_WIDTH / 2 + jitter.x,
+      CANVAS_HEIGHT / 2 + jitter.y - TILE_SIZE * 1.5 + this.yStartingPoint,
+      Math.floor(BTN_HEIGHT * btnRatio),
+      BTN_HEIGHT
+    );
+
+    fill(255);
+    noStroke();
+
+    // show the game play summary texts
+    textAlign(LEFT, TOP);
+    text(
+      `UPTO STAGE\t ${this.curStage} / ${TOTAL_STAGES}`,
+      CANVAS_WIDTH / 2.75,
+      CANVAS_HEIGHT / 2 + HALF_TILE_SIZE + this.yStartingPoint
+    );
+    text(
+      `TRIAL\t ${this.trials - Number(this.status == STATUS.theEnd)}`,
+      CANVAS_WIDTH / 2.75,
+      CANVAS_HEIGHT / 2 + TILE_SIZE * 1.5 + this.yStartingPoint
+    );
+    text(
+      `LIFE`,
+      CANVAS_WIDTH / 2.75,
+      CANVAS_HEIGHT / 2 + TILE_SIZE * 2.5 + this.yStartingPoint
+    );
+
+    // draw lives left with drawing hearts
+    const heartOnCnt = Math.min(TOTAL_LIVES - this.trials + 1, TOTAL_LIVES);
+    for (let i = 1; i <= TOTAL_LIVES; i++) {
+      image(
+        i <= heartOnCnt ? this.hearts['on'] : this.hearts['off'],
+        CANVAS_WIDTH / 2.3 + TILE_SIZE * i * 0.75,
+        CANVAS_HEIGHT / 2 + TILE_SIZE * 2.75 + this.yStartingPoint,
+        TILE_SIZE,
+        TILE_SIZE
+      );
+    }
+  }
+
   update(source, ...args) {
     if (source.includes('gameover') && this.getStatus() != STATUS.gameover) {
-      this.setStatus(STATUS.gameover);
+      // if any obstacle said that the player failed this stage
+      this.status = STATUS.gameover;
       this.buttonImg = this.buttons['retryButton'];
 
+      // play gameover sounds
       this.sounds['titleTheme'].stop();
       this.sounds['gameOver'].play();
-
-      this.animateEndingMotion(false);
+      // show ending motion of masked circle
+      this.animateEndingMotion();
+      // make the player to retry
+      this.goNextStage(false);
     } else if (
       source.includes('succeed') &&
       this.getStatus() != STATUS.succeed
     ) {
-      this.setStatus(STATUS.succeed);
-      this.sounds['titleTheme'].stop();
-      this.sounds['courseClear'].play();
+      // if star-related-object said that the player succeeded this stage
+      this.status = STATUS.succeed;
       this.buttonImg = this.buttons['continueButton'];
 
-      this.animateEndingMotion(true);
+      // play courseClear sounds
+      this.sounds['titleTheme'].stop();
+      this.sounds['courseClear'].play();
+
+      // show ending motion of masked circle
+      this.animateEndingMotion();
+      // make the player to go to the next stage
+      this.goNextStage(true);
     }
   }
 }
