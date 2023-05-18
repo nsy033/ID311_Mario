@@ -133,6 +133,8 @@ function draw() {
 }
 
 function mousePressed() {
+  if (!gameManager) return;
+
   // recognize mouse clicking event as button clicking
   const btnImg = gameManager.getButton();
   const btnRatio = btnImg.width / btnImg.height;
@@ -157,6 +159,8 @@ function mousePressed() {
 }
 
 function keyPressed() {
+  if (!(mario && gameManager)) return;
+
   // recognize key pressing event as moving with direction keys
   const gameStatus = gameManager.getStatus();
   const marioIsInPipe = mario.getInPipe();
@@ -172,6 +176,8 @@ function keyPressed() {
 }
 
 function keyReleased(e) {
+  if (!(mario && gameManager)) return;
+
   // recognize key releasing event only for spacebar ...
   const gameStatus = gameManager.getStatus();
   if (e.keyCode == 32) {

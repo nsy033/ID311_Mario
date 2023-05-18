@@ -30,6 +30,8 @@ class Mario extends Subject {
     this.gravityCache = new Set(); // keeps whether a specific object in [i][j] already checked to be support him from gravity
     this.inPipe = false; // whether he is inside of pipes or not
     this.dir = DIRECTION.down; // his gravitational direction
+    this.face = 1; // whether he is facing left or right
+    this.coordinates = {};
   }
 
   static getInstance() {
@@ -46,7 +48,7 @@ class Mario extends Subject {
     this.x = x;
     this.y = y;
     this.dir = dir;
-    this.face = face; // whether he is facing left or right
+    this.face = face;
     this.coordinates = calcCoordinates(x, y, 'mario', this.dir);
   }
   getPosition() {
