@@ -93,7 +93,7 @@
 
 ## Issues
 - I implemented this based on Chrome, but when running on Safari, the screen seems to have a much longer time interval to re-render; Mario moves very slowly.
-- Collision detection was implemented on my own, and sometimes the criteria for being judged to have collided with fire or thorn may feel too strict.
+- Collision detection was implemented on my own, and sometimes, even though I tried to calibrate as much as possible, the criteria for being judged to have collided with fire or thorn may feel too strict.
 
 ## Resources
 - Original Sound Tracks 
